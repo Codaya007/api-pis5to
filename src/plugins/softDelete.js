@@ -19,6 +19,13 @@ const softDeletePlugin = function (schema, options) {
     await this.save();
   };
 
+  // Añadir un método para realizar eliminación suave
+  schema.methods.destroyOne = async function () {
+    this.deletedAt = new Date();
+
+    await this.save();
+  };
+
   // Añadir un método para restaurar elementos eliminados
   schema.methods.restoreOne = async function () {
     this.deletedAt = null;
