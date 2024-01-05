@@ -8,7 +8,11 @@ const weatherDataRouter = express.Router();
 // Solo los admins pueden ver el historial de datos climáticos guardados
 weatherDataRouter.get("/", isLoggedIn, weatherDataController.list);
 
-weatherDataRouter.get("/:id", isLoggedIn, weatherDataController.getById);
+weatherDataRouter.get(
+  "/:external_id",
+  isLoggedIn,
+  weatherDataController.getById
+);
 
 // Servicio público ya que lo usará la mota padre
 weatherDataRouter.post("/", weatherDataController.create);
