@@ -10,6 +10,8 @@ class WeatherDataController {
   async list(req, res) {
     const { page = 1, limit = 10, ...where } = req.query;
 
+    where.deletedAt = null;
+
     const totalCount = await WeatherData.countDocuments(where);
     const data = await WeatherData.find(where)
       .skip((parseInt(page) - 1) * limit)
@@ -28,7 +30,7 @@ class WeatherDataController {
     const { external_id } = req.params;
 
     const data = await WeatherData.findOne({
-      where: { external_id },
+      external_id,
     });
 
     if (!data) {

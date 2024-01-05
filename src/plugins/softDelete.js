@@ -13,8 +13,9 @@ const softDeletePlugin = function (schema, options) {
   };
 
   // Añadir un método para realizar eliminación suave
-  schema.methods.deleteOneSoft = async function () {
+  schema.methods.deleteOne = async function () {
     this.deletedAt = new Date();
+
     await this.save();
   };
 
@@ -29,15 +30,15 @@ const softDeletePlugin = function (schema, options) {
     return this.updateMany({ deletedAt: { $ne: null } }, { deletedAt: null });
   };
 
-  // Sobrescribir el método estático 'find' para devolver solo los no eliminados por defecto
-  const originalFind = schema.statics.find;
+  // // Sobrescribir el método estático 'find' para devolver solo los no eliminados por defecto
+  // const originalFind = schema.methods.find;
 
-  schema.statics.find = function (conditions = {}) {
-    if (!conditions.hasOwnProperty("deletedAt")) {
-      conditions.deletedAt = null;
-    }
-    return originalFind.call(this, conditions);
-  };
+  // schema.statics.find = function (conditions = {}) {
+  //   if (!conditions.hasOwnProperty("deletedAt")) {
+  //     conditions.deletedAt = null;
+  //   }
+  //   return originalFind.call(this, conditions);
+  // };
 };
 
 module.exports = softDeletePlugin;
