@@ -1,41 +1,33 @@
-// const { validateToken } = require("../helpers/tokenCreation");
+const { tokenValidation } = require("../helpers/validateToken");
 
 module.exports = async (req, res, next) => {
   try {
     const bearerToken = req.header("Authorization");
+    console.log(bearerToken);
+    const user = await tokenValidation(bearerToken);
 
-    if (!bearerToken) {
-      return res.status(403).json({
-        errorMessage: "Sin autenticación presente",
-        details: "'Authorization' header is not present",
+    if (user.deletedAt) {
+      return next({
+        status: 403,
+        message:
+          "Su usuario fue dado de baja, contáctese con el administrador.",
       });
     }
 
-    // const user = await validateToken(bearerToken);
+    if (user.state == "BLOQUEADA") {
+      return next({
+        status: 403,
+        message: "Usuario bloqueado, contáctese con el administrador.",
+      });
+    }
 
-    // if (user.deletedAt) {
-    //   return next({
-    //     status: 403,
-    //     errorMessage:
-    //       "Su usuario fue dado de baja, contáctese con el administrador.",
-    //   });
-    // }
-
-    // if (user.bloqued) {
-    //   return next({
-    //     status: 403,
-    //     errorMessage: "Usuario bloqueado, contáctese con el administrador.",
-    //   });
-    // }
-
-    // req.user = user;
+    req.user = user;
 
     return next();
   } catch (error) {
     next({
       status: 401,
       message: error.message,
-      details: error.message,
     });
   }
 };
