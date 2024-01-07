@@ -37,6 +37,17 @@ const softDeletePlugin = function (schema, options) {
     return this.updateMany({ deletedAt: { $ne: null } }, { deletedAt: null });
   };
 
+  // Añadir un método estático para restaurar todos los elementos eliminados
+  schema.statics.deleteOne = async function (conditions = {}) {
+    conditions.deletedAt = null;
+
+    return this.findOneAndUpdate(
+      conditions,
+      { deletedAt: new Date() },
+      { new: true }
+    );
+  };
+
   // // Sobrescribir el método estático 'find' para devolver solo los no eliminados por defecto
   // const originalFind = schema.methods.find;
 

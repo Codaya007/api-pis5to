@@ -14,7 +14,8 @@ const WeatherDataSchema = new mongoose.Schema(
     },
     windSpeed: {
       type: Number,
-      required: true,
+      // required: true,
+      default: null,
     },
     temperature: {
       type: Number,
@@ -23,6 +24,12 @@ const WeatherDataSchema = new mongoose.Schema(
     humidity: {
       type: Number,
       required: true,
+    },
+    barometricPressure: {
+      type: Number,
+      required: true,
+      min: 0,
+      max: 2000,
     },
   },
   {

@@ -8,22 +8,72 @@ const moment = require("moment-timezone");
 // No se puede: Eliminar, editar
 class WeatherDataController {
   async list(req, res) {
-    const { page = 1, limit = 10, ...where } = req.query;
+    try {
+      const { page = 1, limit = 10, since, until, ...where } = req.query;
 
-    where.deletedAt = null;
+      where.deletedAt = null;
 
-    const totalCount = await WeatherData.countDocuments(where);
-    const data = await WeatherData.find(where)
-      .skip((parseInt(page) - 1) * limit)
-      .limit(limit)
-      .exec();
+      moment.tz.setDefault("America/Guayaquil");
 
-    res.status(200);
-    res.json({
-      msg: "OK",
-      totalCount,
-      data,
-    });
+      // Las fechas since y until sirven para filtrar por fecha
+      const dateTime = {};
+
+      if (since) {
+        // Valido since como fecha o fecha y hora
+        if (
+          !moment(
+            since,
+            ["YYYY/MM/DD", "YY/MM/DD", moment.ISO_8601],
+            true
+          ).isValid()
+        ) {
+          return res.status(400).json({
+            msg: "El campo 'since' no es válido, debe estar en formato YYYY/MM/DD, YY/MM/DD o YYYY-MM-DDTHH:mm:ss.sssZ",
+          });
+        }
+
+        dateTime["$gte"] = moment(since).toDate();
+      } else {
+        dateTime["$gte"] = moment().startOf("year").toDate();
+      }
+
+      if (until) {
+        // Validar until como fecha o fecha y hora
+        if (
+          !moment(
+            until,
+            ["YYYY/MM/DD", "YY/MM/DD", moment.ISO_8601],
+            true
+          ).isValid()
+        ) {
+          return res.status(400).json({
+            msg: "El campo 'until' no es válido, debe estar en formato YYYY/MM/DD, YY/MM/DD o YYYY-MM-DDTHH:mm:ss.sssZ",
+          });
+        }
+
+        dateTime["$lte"] = moment(until).toDate();
+      }
+
+      where.dateTime = dateTime;
+
+      console.log({ where });
+
+      const totalCount = await WeatherData.countDocuments(where);
+      const data = await WeatherData.find(where)
+        .skip((parseInt(page) - 1) * limit)
+        .limit(limit)
+        .sort("dateTime DESC")
+        .exec();
+
+      res.status(200).json({
+        msg: "OK",
+        totalCount,
+        data,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ msg: "Error interno del servidor" });
+    }
   }
 
   async getById(req, res) {
@@ -48,12 +98,13 @@ class WeatherDataController {
   }
 
   async create(req, res) {
-    const { windSpeed, temperature, humidity } = req.body;
+    const { windSpeed, temperature, humidity, barometricPressure } = req.body;
 
     try {
       if (
-        windSpeed === undefined ||
+        // windSpeed === undefined ||
         temperature === undefined ||
+        barometricPressure === undefined ||
         humidity === undefined
       ) {
         return res.status(400).json({
@@ -62,7 +113,7 @@ class WeatherDataController {
       }
 
       // Valido los valores enviado individualmente
-      if (windSpeed < 0 || windSpeed > 200) {
+      if (windSpeed && (windSpeed < 0 || windSpeed > 200)) {
         return res.status(400).json({
           msg: `El valor del viendo debe ir entre 0 y 200 pero se ha enviado ${windSpeed}`,
         });
@@ -80,6 +131,12 @@ class WeatherDataController {
         });
       }
 
+      if (barometricPressure < 0 || barometricPressure > 2000) {
+        return res.status(400).json({
+          msg: `El valor de la presión atmosférica debe ir entre 0 y 2000 pero se ha enviado ${barometricPressure}`,
+        });
+      }
+
       moment.tz.setDefault("America/Bogota");
       const dateTime = moment().toDate();
 
@@ -88,6 +145,7 @@ class WeatherDataController {
         windSpeed,
         humidity,
         temperature,
+        barometricPressure,
       });
 
       res.status(201).json({
