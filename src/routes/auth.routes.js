@@ -23,4 +23,11 @@ router.post("/recovery-password/:token", authController.recoverPassword);
  */
 router.post("/forgot-password", authController.generatePasswordRecoveryToken);
 
+/**
+ * @route POST /activate-Account
+ * @desc Change account's state
+ * @access Public
+ */
+router.post("/activate-account", authController.activateAccount);
+
 module.exports = router;

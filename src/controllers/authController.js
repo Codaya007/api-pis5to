@@ -14,6 +14,12 @@ module.exports = {
     if (!account) {
       return res.json({ status: 400, message: "La cuenta no fue encontrada" });
     }
+    if (account.state == "BLOQUEADA") {
+      return res.json({ status: 401, message: "Cuenta bloqueada" });
+    }
+    if (account.state == "INACTIVA") {
+      return res.json({ status: 401, message: "Cuenta inactivada" });
+    }
     const compare = bcrypt.compareSync(password, account.password);
     if (!compare) {
       return res.json({ status: 401, message: "Credenciales incorrectas" });
@@ -22,6 +28,22 @@ module.exports = {
     const token = await generateToken(payload);
 
     return res.json({ account, token });
+  },
+
+  activateAccount: async (req, res, next) => {
+    const { email } = req.body;
+    // const account = await authService.login(email, password);
+    const account = await Account.findOne({ email });
+    if (!account) {
+      return res.json({ status: 400, message: "La cuenta no fue encontrada" });
+    }
+
+    account.state = "ACTIVA";
+    await account.save();
+    return res.json({
+      message: "Cuenta activada",
+      account,
+    });
   },
 
   generatePasswordRecoveryToken: async (req, res, next) => {
