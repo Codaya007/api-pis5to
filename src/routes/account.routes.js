@@ -9,20 +9,13 @@ const {
 } = require("../validationSchemas/account");
 const middleware = require("../middlewares");
 
-// const {
-//     editCuentaSchema,
-//     createCuentaSchema
-// } = requite("../validationSchemas/cuenta");
-// const middlewares = require("../middlewares");
-// const isLoginIn = require("../policies/isLoggedIn");
-
 /**
  *  @route GET /
  *  @dec Obtener todas las cuentas
  *  @access Logged
  */
 
-router.get("/", cuentaController.getAllAcounts);
+router.get("/", isLoggedIn, cuentaController.getAllAcounts);
 
 /**
  * @route GET /:id
@@ -49,7 +42,7 @@ router.post(
  * @access Public
  */
 
-router.put("/:external", cuentaController.updateCuenta);
+router.put("/:external", isLoggedIn, cuentaController.updateCuenta);
 
 //TODO: Determinar eliminacion de usuarios
 
