@@ -17,7 +17,7 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "upload")));
 
 //! Al añadir cruds no modificar este archivo sino ./routes/index.js
 app.use("/", routes);
