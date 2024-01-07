@@ -62,7 +62,7 @@ module.exports = {
 
             // TODO: traer imagen del serivdor aws
 
-            const result = await Pronostic.create({ dateTime, pronostic: weatherConditionsResult._id, weatherData: weatherDataResult.map((data) => data._id), image: "iamgen" });
+            const result = await Pronostic.create({ dateTime, pronostic: weatherConditionsResult._id, weatherData: weatherDataResult.map((data) => data._id), image: `http://localhost:3000/${image}` });
 
             console.log({ result });
 
@@ -198,7 +198,7 @@ module.exports = {
 
             // TODO: traer imagen del serivdor aws
 
-            const result = { dateTime, pronostic: weatherConditionsResult._id, weatherData: weatherDataResult.map((data) => data._id), image: "imagen" };
+            const result = { dateTime, pronostic: weatherConditionsResult._id, weatherData: weatherDataResult.map((data) => data._id), image: `http://localhost:3000/${image}` };
 
             console.log({ result });
 
