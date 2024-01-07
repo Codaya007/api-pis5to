@@ -12,6 +12,11 @@ const softDeletePlugin = function (schema, options) {
     return this.find({ deletedAt: { $ne: null } });
   };
 
+  schema.methods.softDelete = function () {
+    this.deletedAt = new Date();
+    return this.save();
+  };
+
   // Añadir un método para realizar eliminación suave
   schema.methods.deleteOne = async function () {
     this.deletedAt = new Date();
