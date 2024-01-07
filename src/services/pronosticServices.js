@@ -20,10 +20,9 @@ const getPronosticById = async (id) => {
         throw new ValidationError("El id debe ser un ObjectId");
 
     let pronosticData = await Pronostic.findById(id)
-        // .populate("")
         .lean();
 
-    if (!pronosticData) throw new NotExist("No se encontro el pronostico");
+    if (!pronosticData) throw new NotExist("No se encontró el pronostico");
 
     return pronosticData;
 };
