@@ -42,7 +42,12 @@ router.post(
  * @access Public
  */
 
-router.put("/:external", isLoggedIn, cuentaController.updateCuenta);
+router.put(
+  "/:external",
+  isLoggedIn,
+  middleware.validateRequestBody(editAccountSchema),
+  cuentaController.updateCuenta
+);
 
 //TODO: Determinar eliminacion de usuarios
 
@@ -51,6 +56,6 @@ router.put("/:external", isLoggedIn, cuentaController.updateCuenta);
  * @desc Bloquear usuario por id
  * @access Logged
  */
-router.delete("/:external", cuentaController.deleteCuenta);
+router.delete("/:external", isLoggedIn, cuentaController.deleteCuenta);
 
 module.exports = router;
