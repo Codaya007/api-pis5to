@@ -1,4 +1,5 @@
 const { Types } = require("mongoose");
+const crypto = require("crypto");
 
 /**
  * Valida si un string es un objectId válido
