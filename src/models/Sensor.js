@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-// const manageExternalId = require('../plugins/manageExternalId');
+const manageExternalId = require('../plugins/manageExternalId');
 const Schema = mongoose.Schema;
 
 const sensorSchema = new Schema ({
@@ -15,7 +15,7 @@ const sensorSchema = new Schema ({
     }
 });
 
-// sensorSchema.plugin(manageExternalId);
+sensorSchema.plugin(manageExternalId);
 const Sensor = mongoose.model("sensor", sensorSchema);
 
 module.exports = Sensor;

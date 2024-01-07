@@ -1,5 +1,5 @@
 const { Router } = require("express");
-// const isLoggedIn = require("../policies/isLoggedIn");
+const isLoggedIn = require("../policies/isLoggedIn");
 const sensorController = require("../controllers/sensorController");
 
 const sensorRouter = Router();
@@ -28,7 +28,7 @@ sensorRouter.get(
  */
 sensorRouter.post(
     "/create",
-    // isLoggedIn,
+    isLoggedIn,
     sensorController.createSensor
 );
 
@@ -38,7 +38,7 @@ sensorRouter.post(
  */
 sensorRouter.put(
     "/update",
-    // isLoggedIn,
+    isLoggedIn,
     sensorController.updateSensor
 );
 
