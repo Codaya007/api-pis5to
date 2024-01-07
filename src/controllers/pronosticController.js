@@ -1,49 +1,68 @@
 const pronosticServices = require("../services/pronosticServices");
+const weatherConditionsServices = require("../services/weatherConditionsServices");
 const Pronostic = require("../models/Pronostic");
 const WeatherData = require("../models/WeatherData");
 const WeatherConditions = require("../models/weatherConditions");
+
 const moment = require("moment-timezone");
 
 
 module.exports = {
-    createPronostic: async (req, res) => {
+    createPronostic: async (req, res) => {    
         try {
-            const { pronostic, wheatherData, image } = req.body;
+            // Se obtiene el rango de fechas
+            const { initDate, endDate } = req.params;
 
+            // Se valida que el rango de fechas sea válido
             if (
-                pronostic === undefined ||
-                wheatherData === undefined ||
-                image === undefined
+                initDate === undefined || initDate === "" ||
+                endDate === undefined || endDate === ""
             ) {
                 return res.status(400).json({
-                    msg: "Los campos pronostico, datos del clima e imagen son requeridos",
+                    msg: "Falta especificar el rango de fechas",
                 });
             }
 
-            // const external_id = wheatherData;
-            const wheaterDataResult = await WeatherData.findOne({ external_id: wheatherData, });
+            // Se recupera los datos climáticos dentro del rango de fechas
+            const weatherDataResult = await WeatherData.find({
+                dateTime: {
+                    $gte: initDate,
+                    $lte: endDate,
+                },
+            });
 
-            if (!wheaterDataResult) {
-                return res.status(404).json({
-                    msg: "El registro especificado (wheaterData) no existe",
+            console.log({weatherDataResult});
+
+            // Se valida que los datos climáticos
+            if (!weatherDataResult || weatherDataResult.length == 0) {
+                return res.status(400).json({
+                    msg: "Hubo un error al recuperar los datos climáticos o no se recupero ninguno",
                 });
             }
 
-            const wheaterConditionsResult = await WeatherConditions.findOne({ external_id: pronostic, });
+            // Se llama al modelo matemático para generar el pronostico
+            //? Debe enviar el pronostico sobre temperatura, humedad y velocidad del viento (cambiar en caso )
+            const pronositc = await pronosticServices.generatePronostic(weatherDataResult);
 
-            if (!wheaterConditionsResult) {
+            // Se busca la condición climática para que coincida con el pronóstico
+            const weatherConditionsResult = await weatherConditionsServices.getWeatherConditionsByParameters(pronositc.temperature, pronositc.humidity, pronositc.pressure);
+
+            if (!weatherConditionsResult) {
                 return res.status(404).json({
-                    msg: "El registro especificado (pronostic) no existe",
+                    msg: "Ninguna condición climática corresponde al pronóstico",
                 });
             }
 
             moment.tz.setDefault("America/Bogota");
-            const dateTime = moment().toDate();
+            let dateTime = moment();
+            dateTime = dateTime.startOf('hour').add(1, 'hour');
+            dateTime = dateTime.toDate();
 
-            const result = await Pronostic.create({ dateTime, pronostic: wheaterConditionsResult._id, wheatherData: wheaterDataResult._id, image: image }); // TODO, quitar para obtener pronositc
+            console.log({ dateTime });
 
+            // TODO: traer imagen del serivdor aws
 
-            await wheaterDataResult.refreshExternal();
+            const result = await Pronostic.create({ dateTime, pronostic: weatherConditionsResult._id, weatherData: weatherDataResult.map((data) => data._id), image: `http://localhost:3000/${image}` });
 
             console.log({ result });
 
@@ -122,6 +141,77 @@ module.exports = {
             totalCount,
             result,
         });
+    },
+
+    // Se genera un pronóstico, pero no se guarda en base de datos. Para casos donde se envie un reporte y se quiera saber el pronóstico
+    getGeneratePronosticByDate: async (req, res) => {        
+        //* Agregar campo 'p' en caso de seguir el modelo de Hots Winter
+        
+        try {
+            // Se obtiene el rango de fechas
+            const { initDate, endDate } = req.params;
+
+            // Se valida que el rango de fechas sea válido
+            if (
+                initDate === undefined || initDate === "" ||
+                endDate === undefined || endDate === ""
+            ) {
+                return res.status(400).json({
+                    msg: "Falta especificar el rango de fechas",
+                });
+            }
+
+            // Se recupera los datos climáticos dentro del rango de fechas
+            const weatherDataResult = await WeatherData.find({
+                dateTime: {
+                    $gte: initDate,
+                    $lte: endDate,
+                },
+            });
+
+            // Se valida que los datos climáticos
+            if (!weatherDataResult || weatherDataResult.length == 0) {
+                return res.status(400).json({
+                    msg: "Hubo un error al recuperar los datos climáticos o no se recupero ninguno",
+                });
+            }
+
+            // Se llama al modelo matemático para generar el pronostico
+            //? Debe enviar el pronostico sobre temperatura, humedad y velocidad del viento (cambiar en caso )
+            const pronositc = await pronosticServices.generatePronostic(weatherDataResult);
+
+            // Se busca la condición climática para que coincida con el pronóstico
+            const weatherConditionsResult = await weatherConditionsServices.getWeatherConditionsByParameters(pronositc.temperature, pronositc.humidity, pronositc.pressure);
+
+            if (!weatherConditionsResult) {
+                return res.status(404).json({
+                    msg: "Ninguna condición climática corresponde al pronóstico",
+                });
+            }
+
+            moment.tz.setDefault("America/Bogota");
+            let dateTime = moment();
+            dateTime = dateTime.startOf('hour').add(1, 'hour');
+            dateTime = dateTime.toDate();
+
+            console.log({ dateTime });
+
+            // TODO: traer imagen del serivdor aws
+
+            const result = { dateTime, pronostic: weatherConditionsResult._id, weatherData: weatherDataResult.map((data) => data._id), image: `http://localhost:3000/${image}` };
+
+            console.log({ result });
+
+            res.status(201).json({
+                msg: "OK",
+                result,
+            });
+        } catch (error) {
+            res.status(400).json({
+                msg: "Algo salió mal",
+                error: error.message,
+            });
+        }
     },
 
 };

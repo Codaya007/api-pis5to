@@ -34,11 +34,21 @@ pronosticRouter.get(
 );
 
 /**
+ * @route GET /
+ * @desc Generar pronostico por rango de fechas. Acceso solo a admin. (Reporte)
+ */
+pronosticRouter.get(
+  "/generate/:initDate/:endDate",
+  // isLoggedIn,
+  pronosticController.getGeneratePronosticByDate
+);
+
+/**
  * @route POST /
  * @desc Crea un pronóstico
  */
 pronosticRouter.post(
-  "/create",
+  "/create/:initDate/:endDate",
   pronosticController.createPronostic
 );
 
