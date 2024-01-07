@@ -1,13 +1,18 @@
 var express = require("express");
 var router = express.Router();
 var authController = require("../controllers/authController");
-
+const { loginSchema } = require("../validationSchemas/login");
+const middleware = require("../middlewares");
 /**
  * @route POST /login
  * @desc Iniciar sesión
  * @access Public
  */
-router.post("/login", authController.loginUser);
+router.post(
+  "/login",
+  middleware.validateRequestBody(loginSchema),
+  authController.loginUser
+);
 
 /**
  * @route POST /recovery-password/:token

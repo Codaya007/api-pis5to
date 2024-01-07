@@ -19,7 +19,7 @@ const createAccountSchema = Joi.object({
   }),
   state: Joi.string()
     .valid("ACTIVA", "BLOQUEADA", "INACTIVA")
-    .required()
+    .optional()
     .messages({
       "*": "El campo estado es requerido y debe ser uno de: 'ACTIVA', 'BLOQUEADA', 'INACTIVA'",
     }),
@@ -46,7 +46,7 @@ const editAccountSchema = Joi.object({
   }),
   state: Joi.string()
     .valid("ACTIVA", "BLOQUEADA", "INACTIVA")
-    .required()
+    .optional()
     .messages({
       "*": "El campo estado es requerido y debe ser uno de: 'ACTIVA', 'BLOQUEADA', 'INACTIVA'",
     }),
