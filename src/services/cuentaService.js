@@ -1,22 +1,20 @@
 const { isValidObjectId } = require("mongoose");
 // const ValidationError = require("")
 const Cuenta = require("../models/Account");
-const ApiCustomError = require("../errors/ApiError");
 const { hashPassword } = require("../helpers/hashPassword");
-const ValidationError = require("../errors/ValidationError");
 const uuidv4 = require("uuid").v4;
 
 const getAllCuentas = async (where = {}, skip = 10, limit = 10) => {
   const allCuentas = await Cuenta.find(where).skip(skip).limit(limit);
-
   return allCuentas;
 };
 
 const getCuentaByExternalId = async (external_id) => {
-  console.log(external_id);
   const cuenta = await Cuenta.findOne({ external_id });
   console.log(cuenta);
-  // if (!cuenta) throw new ValidationError("There is not account");
+  if (!cuenta) {
+    res.json({ status: 400, message: "La cuenta no fue encontrada" });
+  }
 
   return cuenta;
 };
@@ -27,7 +25,7 @@ const createCuenta = async ({ password, ...newUser }) => {
   newUser.password = hashedPassword;
 
   if (cuentaExist) {
-    throw new ValidationError("There is an account");
+    return res.json({ status: 400, message: "La cuenta ya existe" });
   }
 
   const cuenta = await Cuenta.create({
@@ -50,15 +48,15 @@ const updateCuenta = async (external_id, newInfo) => {
 };
 
 const deleteCuenta = async (external_id) => {
-  // const accountA = await getCuentaByExternalId(external_id);
-  // if (!accountA) throw new ValidationError("There is not account");
+  const accountA = await getCuentaByExternalId(external_id);
+  if (!accountA) {
+    return res.json({ status: 400, message: "La cuenta no existe" });
+  }
   const toDelete = await updateCuenta(external_id, {
     email: null,
     external_id: uuidv4(),
     deletedAt: new Date(),
   });
-  console.log(toDelete);
-  // const deleted = await toDelete.softDelete();
   return toDelete;
 };
 

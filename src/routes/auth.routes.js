@@ -14,7 +14,7 @@ router.post("/login", authController.loginUser);
  * @desc Recuperar la contraseña
  * @access Public
  */
-router.post("/recovery-password", authController.recoverPassword);
+router.post("/recovery-password/:token", authController.recoverPassword);
 
 /**
  * @route POST /forgor-passord

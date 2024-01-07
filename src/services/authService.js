@@ -7,10 +7,12 @@ const bcrypt = require("bcrypt");
 
 const login = async (email, password) => {
   const account = await Account.findOne({ email });
-  if (!account) throw new ValidationError("Account did not found");
+  if (!account) {
+    return res.json({ status: 400, message: "La cuenta no fue encontrada" });
+  }
   const compare = bcrypt.compareSync(password, account.password);
   if (!compare) {
-    throw new ValidationError("Incorrect credentials");
+    return res.json({ status: 401, message: "Credenciales incorrectas" });
   }
   return account;
 };
@@ -18,7 +20,9 @@ const login = async (email, password) => {
 const generatePasswordRecoveryToken = async (email) => {
   const account = await Account.findOne({ email });
 
-  if (!account) throw new ApiCustomError("The account is not register");
+  if (!account) {
+    return res.json({ status: 401, message: "Email incorrecto" });
+  }
 
   const token = generateUrlFriendlyToken();
   account.token = token;
@@ -31,11 +35,11 @@ const generatePasswordRecoveryToken = async (email) => {
 const validateTokenAccount = async (token) => {
   const account = await Account.findOne({ token });
   if (!account) {
-    throw new ApiCustomError("Token is not valid");
+    return res.json({ status: 400, message: "Token invalido" });
   }
 
   if (Date.now() > account.tokenExpiresAt) {
-    throw new InvalidToken("Token has expired");
+    return res.json({ status: 401, message: "Token a expirado" });
   }
 
   return account;

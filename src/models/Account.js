@@ -54,7 +54,6 @@ const accountSchema = new Schema(
 );
 
 accountSchema.plugin(manageExternalId);
-accountSchema.plugin(softDeletePlugin);
 const Account = mongoose.model("accounts", accountSchema);
 
 module.exports = Account;
