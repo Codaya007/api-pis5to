@@ -9,8 +9,8 @@ const pronosticSchema = new Schema({
         required: true,
         default: Date.now()
     },
-    wheatherData: {
-        type: Schema.Types.ObjectId, // Tipo ObjectId para referencia
+    weatherData: {
+        type: [Schema.Types.ObjectId], // Tipo ObjectId para referencia
         ref: "WeatherData", // Nombre del modelo referenciado
         // required: true,
     },
