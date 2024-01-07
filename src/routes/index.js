@@ -1,5 +1,4 @@
 const express = require("express");
-const userRouter = require("./users");
 const pronosticRouter = require("./pronosticRouter");
 const weatherDataRouter = require("./weatherData.routes");
 const nodeRouter = require("./node.routes");
@@ -8,6 +7,7 @@ const accountRouter = require("./account.routes");
 const authRouter = require("./auth.routes");
 const imageRouter = require("./image.routes");
 const sensorRouter = require("./sensor.routes");
+const weatherConditionRouter = require("./weatherCondition.routes");
 
 const router = express.Router();
 
@@ -16,7 +16,7 @@ router.get("/", (req, res, next) => {
 });
 
 router.use("/auth", authRouter);
-router.use("/users", userRouter);
+router.use("/weathercondition", weatherConditionRouter);
 router.use("/pronostic", pronosticRouter);
 router.use("/weatherdata", weatherDataRouter);
 router.use("/node", nodeRouter);
