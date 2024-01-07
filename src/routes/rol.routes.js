@@ -28,7 +28,7 @@ rolRouter.get(
  */
 rolRouter.post(
     "/create",
-    // isLoggedIn,
+    isLoggedIn,
     rolController.createRol
 );
 
@@ -38,7 +38,7 @@ rolRouter.post(
  */
 rolRouter.put(
     "/update",
-    // isLoggedIn,
+    isLoggedIn,
     rolController.updateRol
 );
 
