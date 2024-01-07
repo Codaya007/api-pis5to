@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const softDeletePlugin = require("../plugins/softDelete");
+const manageExternalId = require("../plugins/manageExternalId");
 const Schema = mongoose.Schema;
 
 const pronosticSchema = new Schema({
@@ -7,21 +9,23 @@ const pronosticSchema = new Schema({
         required: true,
         default: Date.now()
     },
-    climateDate: {
+    wheatherData: {
         type: Schema.Types.ObjectId, // Tipo ObjectId para referencia
-        ref: "ClimateDate", // Nombre del modelo referenciado
+        ref: "WeatherData", // Nombre del modelo referenciado
         // required: true,
     },
     pronostic: {
         type: Schema.Types.ObjectId,
-        ref: "Climate",
-        // required: true,
+        ref: "WeatherConditions",
     },
     image: {
         type: String,
         required: true,
     },
 });
+
+pronosticSchema.plugin(softDeletePlugin);
+pronosticSchema.plugin(manageExternalId);
 
 const Pronostic = mongoose.model("Pronostic", pronosticSchema);
 

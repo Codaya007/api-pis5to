@@ -1,40 +1,37 @@
 const { Router } = require("express");
+const isLoggedIn = require("../policies/isLoggedIn"); 
 const pronosticController = require("../controllers/pronosticController");
-// const {
-//   createNodeWithDetailSchema,
-//   updateNodeWithDetailSchema,
-// } = require("../validationSchemas/NodeWithDetail");
 
 const pronosticRouter = Router();
-
-/**
- * @route GET /
- * @desc Metodo de prueba
- */
-pronosticRouter.get(
-  "/",
-  pronosticController.prueba
-);
-
 
 /**
  * @route GET /
  * @desc Obtener pronostico por ID
  */
 pronosticRouter.get(
-  "/:id",
+  "/get/:external_id",
   pronosticController.getPronosticById
+);
+
+/**
+ * @route GET /
+ * @desc Obtener todos los pronósticos
+ */
+pronosticRouter.get(
+  "/list",
+  pronosticController.list
 );
 
 
 /**
  * @route GET /
- * @desc Obtener pronostico por rango de fechas
+ * @desc Obtener pronostico por rango de fechas. Solo los admins pueden ver el historial de pronósticos  guardados
  */
 pronosticRouter.get(
   "/:initDate/:endDate",
+  isLoggedIn,
   pronosticController.getPronosticByDate
-);  
+);
 
 /**
  * @route POST /
@@ -42,7 +39,7 @@ pronosticRouter.get(
  */
 pronosticRouter.post(
   "/create",
-  pronosticController.createPronostic 
+  pronosticController.createPronostic
 );
 
 module.exports = pronosticRouter;

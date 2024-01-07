@@ -1,36 +1,120 @@
 const pronosticServices = require("../services/pronosticServices");
+const Pronostic = require("../models/Pronostic");
+const WeatherData = require("../models/WeatherData");
+const moment = require("moment-timezone");
+
 
 module.exports = {
-
-    prueba: async (req, res) => {
-        // const user = await authService.register(req.body);
-
-        // const payload = { id: user.id };
-        console.log({req});
-        const ej = await pronosticServices.prueba("ddf")
-
-        return res.json({ ej });
-    },
-// next?
     createPronostic: async (req, res) => {
-        const ej = await pronosticServices.createPronostic(req.body)
+        try {
+            const { pronostic, wheatherData, image } = req.body;
 
-        return res.json({ ej });
+            if (
+                pronostic === undefined ||
+                wheatherData === undefined ||
+                image === undefined
+            ) {
+                return res.status(400).json({
+                    msg: "Los campos pronostico, datos del clima e imagen son requeridos",
+                });
+            }
+
+            const external_id = wheatherData;
+            const wheaterDataResult = await WeatherData.findOne({ external_id, });
+
+            if (!wheaterDataResult) {
+                return res.status(404).json({
+                    msg: "El registro especificado (wheaterData) no existe",
+                });
+            }
+
+            // TODO: Comprobar el clima (wheaterConditions)
+
+            moment.tz.setDefault("America/Bogota");
+            const dateTime = moment().toDate();
+
+            const result = await Pronostic.create({ dateTime, pronostic: "6599bd987d3eb30b8773144a", wheatherData: wheaterDataResult._id, image: image }); // TODO, quitar para obtener pronositc
+
+
+            await wheaterDataResult.refreshExternal();
+
+            console.log({ result });
+
+            res.status(201).json({
+                msg: "OK",
+                result,
+            });
+        } catch (error) {
+            res.status(400).json({
+                msg: "Algo salió mal",
+                error: error.message,
+            });
+        }
+    },
+
+    list: async (req, res) => {
+        const { page = 1, limit = 10, ...where } = req.query;
+
+        where.deletedAt = null;
+
+        const totalCount = await Pronostic.countDocuments(where);
+        const data = await Pronostic.find(where)
+            .skip((parseInt(page) - 1) * limit)
+            .limit(limit)
+            .exec();
+
+        res.status(200);
+        res.json({
+            msg: "OK",
+            totalCount,
+            data,
+        });
     },
 
     getPronosticById: async (req, res) => {
-        const { id } = req.params;
-        const result = await pronosticServices.getPronosticById(id)
+        const { external_id } = req.params;
 
-        return res.json({ result });
+        // const result = await pronosticServices.getPronosticById(id)
+        const result = await Pronostic.findOne({ external_id })
+
+        if (!result) {
+            return res.status(404).json({
+                msg: "No se encontro el registro especificado"
+            })
+        }
+
+        // await result.refreshExternal();
+
+        res.status(200).json({
+            msg: "OK",
+            data,
+        });
     },
 
     getPronosticByDate: async (req, res) => {
         const { initDate, endDate } = req.params;
-        // const { initDate, endDate } = req.query;
-        const result = await pronosticServices.getPronosticByDate(initDate, endDate)
+        const { page = 1, limit = 10, ...where } = req.query;
 
-        return res.json({ result });
+        where.deletedAt = null;
+        where.dateTime = {
+            $gte: initDate,
+            $lte: endDate,
+        };
+
+        // const result = await pronosticServices.getPronosticByDate(initDate, endDate)
+
+        const totalCount = await Pronostic.countDocuments(where);
+        const result = await Pronostic.find(where)
+            .skip((parseInt(page) - 1) * limit)
+            .limit(limit)
+            .exec();
+
+        res.status(200);
+        res.json({
+            msg: "OK",
+            totalCount,
+            result,
+        });
     },
 
 };

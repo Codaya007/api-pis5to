@@ -4,22 +4,6 @@ const NotExist = require("../errors/NotExit");
 const ValidationError = require("../errors/ValidationError");
 const { isValidObjectId } = require("mongoose");
 
-const prueba = async ({ mensaje }) => {
-
-    // const role = await Role.findOne({ name: NORMAL_ROLE_NAME });
-    // if (role) newInfo.role = role._id;
-
-    // const user = await User.create({
-    //     ...newInfo,
-    //     settings: {
-    //         nofitication: true,
-    //         spam: true,
-    //     },
-    // });
-
-    return `${mensaje} hola`;
-};
-
 const createPronostic = async (pronosticData) => {
     console.log({ pronosticData });
 
@@ -60,7 +44,6 @@ const getPronosticByDate = async (initDate, endDate) => {
 };
 
 module.exports = {
-    prueba,
     createPronostic,
     getPronosticById,
     getPronosticByDate
