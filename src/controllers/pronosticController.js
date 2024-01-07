@@ -1,6 +1,7 @@
 const pronosticServices = require("../services/pronosticServices");
 const Pronostic = require("../models/Pronostic");
 const WeatherData = require("../models/WeatherData");
+const WeatherConditions = require("../models/weatherConditions");
 const moment = require("moment-timezone");
 
 
@@ -19,8 +20,8 @@ module.exports = {
                 });
             }
 
-            const external_id = wheatherData;
-            const wheaterDataResult = await WeatherData.findOne({ external_id, });
+            // const external_id = wheatherData;
+            const wheaterDataResult = await WeatherData.findOne({ external_id: wheatherData, });
 
             if (!wheaterDataResult) {
                 return res.status(404).json({
@@ -28,12 +29,18 @@ module.exports = {
                 });
             }
 
-            // TODO: Comprobar el clima (wheaterConditions)
+            const wheaterConditionsResult = await WeatherConditions.findOne({ external_id: pronostic, });
+
+            if (!wheaterConditionsResult) {
+                return res.status(404).json({
+                    msg: "El registro especificado (pronostic) no existe",
+                });
+            }
 
             moment.tz.setDefault("America/Bogota");
             const dateTime = moment().toDate();
 
-            const result = await Pronostic.create({ dateTime, pronostic: "6599bd987d3eb30b8773144a", wheatherData: wheaterDataResult._id, image: image }); // TODO, quitar para obtener pronositc
+            const result = await Pronostic.create({ dateTime, pronostic: wheaterConditionsResult._id, wheatherData: wheaterDataResult._id, image: image }); // TODO, quitar para obtener pronositc
 
 
             await wheaterDataResult.refreshExternal();
