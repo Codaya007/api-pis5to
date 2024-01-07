@@ -1,3 +1,5 @@
+const Account = require("../models/Account");
+const Sensor = require("../models/Sensor");
 const Node = require("../models/Node");
 const Rol = require("../models/Rol");
 
