@@ -89,7 +89,7 @@ class WeatherDataController {
       });
     }
 
-    await data.refreshExternal();
+    // await data.refreshExternal();
 
     res.status(200).json({
       msg: "OK",
