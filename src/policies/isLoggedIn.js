@@ -2,7 +2,7 @@ const { tokenValidation } = require("../helpers/validateToken");
 
 module.exports = async (req, res, next) => {
   try {
-    const bearerToken = req.header("Authorization");
+    const bearerToken = req.header("Autentication");
     console.log(bearerToken);
     const user = await tokenValidation(bearerToken);
 
