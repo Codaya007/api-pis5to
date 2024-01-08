@@ -60,9 +60,7 @@ module.exports = {
 
             console.log({ dateTime });
 
-            // TODO: traer imagen del serivdor aws
-
-            const result = await Pronostic.create({ dateTime, pronostic: weatherConditionsResult._id, weatherData: weatherDataResult.map((data) => data._id), image: `http://localhost:3000/${image}` });
+            const result = await Pronostic.create({ dateTime, pronostic: weatherConditionsResult._id, weatherData: weatherDataResult.map((data) => data._id), image: `http://localhost:3000/soleado.jpg` });
 
             console.log({ result });
 
@@ -196,9 +194,7 @@ module.exports = {
 
             console.log({ dateTime });
 
-            // TODO: traer imagen del serivdor aws
-
-            const result = { dateTime, pronostic: weatherConditionsResult._id, weatherData: weatherDataResult.map((data) => data._id), image: `http://localhost:3000/${image}` };
+            const result = { dateTime, pronostic: weatherConditionsResult._id, weatherData: weatherDataResult.map((data) => data._id), image: `http://localhost:3000/soleado.jpg` };
 
             console.log({ result });
 
