@@ -1,5 +1,4 @@
 const express = require("express");
-const userRouter = require("./users");
 const pronosticRouter = require("./pronosticRouter");
 const weatherDataRouter = require("./weatherData.routes");
 const nodeRouter = require("./node.routes");
@@ -17,7 +16,7 @@ router.get("/", (req, res, next) => {
 });
 
 router.use("/auth", authRouter);
-router.use("/users", userRouter);
+router.use("/weathercondition", weatherConditionRouter);
 router.use("/pronostic", pronosticRouter);
 router.use("/weatherdata", weatherDataRouter);
 router.use("/node", nodeRouter);
