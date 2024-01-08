@@ -18,10 +18,6 @@ const pronosticSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "WeatherConditions",
     },
-    image: {
-        type: String,
-        required: true,
-    },
 });
 
 pronosticSchema.plugin(softDeletePlugin);
