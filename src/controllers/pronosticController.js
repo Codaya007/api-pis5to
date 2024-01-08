@@ -2,13 +2,12 @@ const pronosticServices = require("../services/pronosticServices");
 const weatherConditionsServices = require("../services/weatherConditionsServices");
 const Pronostic = require("../models/Pronostic");
 const WeatherData = require("../models/WeatherData");
-const WeatherConditions = require("../models/weatherConditions");
 
 const moment = require("moment-timezone");
 
 
 module.exports = {
-    createPronostic: async (req, res) => {    
+    createPronostic: async (req, res) => {
         try {
             // Se obtiene el rango de fechas
             const { initDate, endDate } = req.params;
@@ -31,7 +30,7 @@ module.exports = {
                 },
             });
 
-            console.log({weatherDataResult});
+            console.log({ weatherDataResult });
 
             // Se valida que los datos climáticos
             if (!weatherDataResult || weatherDataResult.length == 0) {
@@ -60,7 +59,7 @@ module.exports = {
 
             console.log({ dateTime });
 
-            const result = await Pronostic.create({ dateTime, pronostic: weatherConditionsResult._id, weatherData: weatherDataResult.map((data) => data._id), image: `http://localhost:3000/soleado.jpg` });
+            const result = await Pronostic.create({ dateTime, pronostic: weatherConditionsResult._id, weatherData: weatherDataResult.map((data) => data._id), image: `http://localhost:3000/${weatherConditionsResult.image}` });
 
             console.log({ result });
 
@@ -107,8 +106,6 @@ module.exports = {
             })
         }
 
-        // await result.refreshExternal();
-
         res.status(200).json({
             msg: "OK",
             result,
@@ -142,12 +139,13 @@ module.exports = {
     },
 
     // Se genera un pronóstico, pero no se guarda en base de datos. Para casos donde se envie un reporte y se quiera saber el pronóstico
-    getGeneratePronosticByDate: async (req, res) => {        
+    getGeneratePronosticByDate: async (req, res) => {
         //* Agregar campo 'p' en caso de seguir el modelo de Hots Winter
-        
+
         try {
             // Se obtiene el rango de fechas
             const { initDate, endDate } = req.params;
+            const { populate = false } = req.query;
 
             // Se valida que el rango de fechas sea válido
             if (
@@ -194,7 +192,7 @@ module.exports = {
 
             console.log({ dateTime });
 
-            const result = { dateTime, pronostic: weatherConditionsResult._id, weatherData: weatherDataResult.map((data) => data._id), image: `http://localhost:3000/soleado.jpg` };
+            const result = { dateTime, pronostic: populate ? weatherConditionsResult : weatherConditionsResult.external_id, weatherData: weatherDataResult.map((data) => data._id), image: `http://localhost:3000/${weatherConditionsResult.image}` };
 
             console.log({ result });
 
