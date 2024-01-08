@@ -26,7 +26,7 @@ const accountSchema = new Schema(
     password: {
       type: String,
       required: true,
-      min: 5,
+      min: 8,
       max: 61,
     },
     avatar: {
