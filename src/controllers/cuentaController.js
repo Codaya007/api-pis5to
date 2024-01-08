@@ -70,6 +70,7 @@ module.exports = {
       },
       { new: true }
     );
+    console.log(deletedCuenta);
     // const deletedCuenta = await cuentaService.deleteCuenta(req.params.external);
     return res.status(200).json({ msg: "OK", deletedCuenta });
   },

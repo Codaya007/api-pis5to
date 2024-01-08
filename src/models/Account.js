@@ -40,6 +40,10 @@ const accountSchema = new Schema(
       isIn: ["ACTIVA", "BLOQUEADA", "INACTIVA"],
       default: "ACTIVA",
     },
+    deletedAt: {
+      type: Date,
+      required: false,
+    },
     token: {
       type: String,
       required: false,
