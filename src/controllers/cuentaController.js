@@ -10,7 +10,7 @@ module.exports = {
     const allAccounts = await Cuenta.find(where).skip(skip).limit(limit);
     where.deletedAt = null;
     const numberAccounts = await Cuenta.countDocuments(where);
-    res.json({ numberAccounts, allAccounts });
+    res.status(200).json({ numberAccounts, allAccounts });
   },
 
   getCuentaByExternalId: async (req, res, next) => {
@@ -19,7 +19,7 @@ module.exports = {
     if (!cuentaA) {
       return res.json({ status: 400, message: "La cuenta no fue encontrada" });
     }
-    return res.json(cuentaA);
+    return res.status(200).json({ msg: "OK", cuentaA });
   },
 
   updateCuenta: async (req, res, next) => {
@@ -35,7 +35,7 @@ module.exports = {
     cuenta = await Cuenta.findOneAndUpdate({ external_id }, req.body, {
       new: true,
     });
-    return res.json(cuenta);
+    return res.status(200).json({ msg: "OK", cuenta });
   },
 
   createCuenta: async (req, res) => {
@@ -51,7 +51,7 @@ module.exports = {
     const cuenta = await Cuenta.create({
       ...req.body,
     });
-    return res.json(cuenta);
+    return res.status(201).json({ msg: "OK", cuenta });
   },
 
   deleteCuenta: async (req, res) => {
@@ -71,6 +71,6 @@ module.exports = {
       { new: true }
     );
     // const deletedCuenta = await cuentaService.deleteCuenta(req.params.external);
-    return res.json(deletedCuenta);
+    return res.status(200).json({ msg: "OK", deletedCuenta });
   },
 };
