@@ -5,27 +5,6 @@ const {validationResult} = require('express-validator');
 const { v4: uuidv4 } = require('uuid');
 
 class WeatherConditionsController {
-    async initDatabase(req, res) {
-        try {
-            await mongoose.connect(process.env.DB_URL, { useNewUrlParser: true, useUnifiedTopology: true });
-            const collectionExists = await mongoose.connection.db.listCollections({ name: 'weatherconditions' }).hasNext();
-
-            if (!collectionExists) {
-                await mongoose.connection.db.createCollection('weatherconditions');
-                res.json({ message: 'Colección creada con éxito.' });
-            } else {
-                res.json({ message: 'La colección ya existe en la base de datos.' });
-            }
-        } catch (error) {
-            console.error('Error al crear la colección:', error);
-        }
-    }
-
-    async initializeDatabase() {
-        await this.initDatabase();
-        console.log('Inicialización de la base de datos completa.');
-    }
-
     async save(req, res) {
         try {
             let errors = validationResult(req);
@@ -45,7 +24,12 @@ class WeatherConditionsController {
                         humidityRange: {
                             from: req.body.humidityFrom,
                             to: req.body.humidityTo
-                        }
+                        },
+                        windSpeed: {
+                            from: req.body.windFrom,
+                            to: req.body.windTo
+                        },
+                        image: req.body.image
                     };
 
                     const weatherConditions = new WeatherConditions(data);
@@ -94,7 +78,7 @@ class WeatherConditionsController {
 
     async modify(req, res) {
         try {
-            const externalId = req.body.external_id;
+            const externalId = req.params.external_id;
     
             // Encuentra y actualiza la condición climática por su external_id
             const result = await WeatherConditions.findOneAndUpdate(
@@ -113,6 +97,10 @@ class WeatherConditionsController {
                         humidityRange: {
                             from: req.body.humidityFrom,
                             to: req.body.humidityTo
+                        },
+                        windSpeed: {
+                            from: req.body.windFrom,
+                            to: req.body.windTo
                         },
                     external_id: uuidv4(), // Asigna un nuevo external_id (opcional)
                 },

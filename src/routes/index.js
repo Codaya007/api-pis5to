@@ -7,7 +7,7 @@ const accountRouter = require("./account.routes");
 const authRouter = require("./auth.routes");
 const imageRouter = require("./image.routes");
 const sensorRouter = require("./sensor.routes");
-const weatherConditionRouter = require("./weatherCondition.routes");
+const weatherConditions = require("./weatherConditions");
 
 const router = express.Router();
 
@@ -24,5 +24,6 @@ router.use("/rol", rolRouter);
 router.use("/accounts", accountRouter);
 router.use("/images", imageRouter);
 router.use("/sensor", sensorRouter);
+router.use("/weatherconditions", weatherConditions);
 
 module.exports = router;
