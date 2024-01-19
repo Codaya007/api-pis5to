@@ -2,8 +2,9 @@ const { tokenValidation } = require("../helpers/validateToken");
 
 module.exports = async (req, res, next) => {
   try {
-    const bearerToken = req.header("Autentication");
-    console.log(bearerToken);
+    //! NO CAMBIAR ESTE NOMBRE DEL HEADER: https://developer.mozilla.org/es/docs/Web/HTTP/Headers/Authorization
+    const bearerToken = req.header("Authorization");
+
     const user = await tokenValidation(bearerToken);
 
     if (user.deletedAt) {

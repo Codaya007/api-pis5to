@@ -1,6 +1,8 @@
 const express = require("express");
 const isLoggedIn = require("../policies/isLoggedIn");
 const WeatherDataController = require("../controllers/WeatherDataController");
+const { validateRequestBody } = require("../middlewares");
+const { createWeatherDataSchema } = require("../validationSchemas/WeatherData");
 const weatherDataController = new WeatherDataController();
 
 const weatherDataRouter = express.Router();
@@ -15,6 +17,11 @@ weatherDataRouter.get(
 );
 
 // Servicio público ya que lo usará la mota padre
-weatherDataRouter.post("/", weatherDataController.create);
+weatherDataRouter.post(
+  "/",
+  isLoggedIn,
+  validateRequestBody(createWeatherDataSchema),
+  weatherDataController.create
+);
 
 module.exports = weatherDataRouter;

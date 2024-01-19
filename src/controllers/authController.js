@@ -27,7 +27,7 @@ module.exports = {
     const payload = { id: account.id };
     const token = await generateToken(payload);
 
-    return res.json({ account, token });
+    return res.status(200).json({ account, token });
   },
 
   activateAccount: async (req, res, next) => {
@@ -40,7 +40,7 @@ module.exports = {
 
     account.state = "ACTIVA";
     await account.save();
-    return res.json({
+    return res.status(200).json({
       message: "Cuenta activada",
       account,
     });
@@ -67,12 +67,12 @@ module.exports = {
       subject: "Recuperacion de contraseña",
       html: `
        <b>Haga click en el siguiente enlace o pégelo en su navegador web para la recuperación de contraseña</b>
-       <a href="http://localhost:3000/auth/recovery-password/${token}">http://localhost:3000/recovery-password/${token}</a>
+       <a href="http://localhost:3000/auth/recovery-password/${token}">http://localhost:3000/auth/recovery-password/${token}</a>
       `,
     };
     await transporter.sendMail(mailOptions);
 
-    return res.json({
+    return res.status(200).json({
       message: "El link de acceso se le envio a su email de registro",
     });
   },
@@ -100,7 +100,7 @@ module.exports = {
       });
     }
 
-    res.json({
+    res.status(200).json({
       message: "Contraseña actualizada exitosamente",
     });
   },

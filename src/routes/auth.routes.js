@@ -3,6 +3,7 @@ var router = express.Router();
 var authController = require("../controllers/authController");
 const { loginSchema } = require("../validationSchemas/login");
 const middleware = require("../middlewares");
+const { changePasswordSchema } = require("../validationSchemas/account");
 /**
  * @route POST /login
  * @desc Iniciar sesión
@@ -19,7 +20,11 @@ router.post(
  * @desc Recuperar la contraseña usando token de recuperacion creado y enviado a su gmail
  * @access Public
  */
-router.post("/recovery-password/:token", authController.recoverPassword);
+router.post(
+  "/recovery-password/:token",
+  middleware.validateRequestBody(changePasswordSchema),
+  authController.recoverPassword
+);
 
 /**
  * @route POST /forgot-passord

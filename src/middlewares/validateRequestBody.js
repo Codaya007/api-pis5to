@@ -17,12 +17,12 @@ const validateRequestBody = (validationSchema) => async (req, res, next) => {
           )
         : [error.message];
 
-      const message = `Se han encontrado algunos errores: ${errorsMessages.join(
+      const errorMessage = `Se han encontrado algunos errores: ${errorsMessages.join(
         ". "
       )}`;
 
       // Si se hallaron errores, lanzo el error al middleware de manejo de errores
-      return next({ ...error, valid: false, message, status: 400 });
+      return next({ ...error, valid: false, errorMessage, status: 400 });
     }
   }
 };
