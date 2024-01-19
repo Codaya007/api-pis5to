@@ -4,6 +4,7 @@ const Pronostic = require("../models/Pronostic");
 const WeatherData = require("../models/WeatherData");
 
 const moment = require("moment-timezone");
+moment.tz.setDefault("America/Bogota");
 
 
 module.exports = {
@@ -21,6 +22,17 @@ module.exports = {
                     msg: "Falta especificar el rango de fechas",
                 });
             }
+
+            // Validar que endDate no sea mayor que la fecha actual
+            const currentDate = moment();
+            const endDateMoment = moment(endDate);
+
+            if (endDateMoment.isAfter(currentDate)) {
+                return res.status(400).json({
+                    msg: "La fecha límite no puede ser mayor que la fecha actual",
+                });
+            }
+
 
             // Se recupera los datos climáticos dentro del rango de fechas
             const weatherDataResult = await WeatherData.find({
@@ -52,7 +64,6 @@ module.exports = {
                 });
             }
 
-            moment.tz.setDefault("America/Bogota");
             let dateTime = moment();
             dateTime = dateTime.startOf('hour').add(1, 'hour');
             dateTime = dateTime.toDate();
@@ -97,7 +108,6 @@ module.exports = {
     getPronosticById: async (req, res) => {
         const { external_id } = req.params;
 
-        // const result = await pronosticServices.getPronosticById(id)
         const result = await Pronostic.findOne({ external_id })
 
         if (!result) {
@@ -116,13 +126,31 @@ module.exports = {
         const { initDate, endDate } = req.params;
         const { page = 1, limit = 10, ...where } = req.query;
 
+        // TODO validar que endDate nosea mayor que la fecha actual
+        if (
+            initDate === undefined || initDate === "" ||
+            endDate === undefined || endDate === ""
+        ) {
+            return res.status(400).json({
+                msg: "Falta especificar el rango de fechas",
+            });
+        }
+
+        // Validar que endDate no sea mayor que la fecha actual
+        const currentDate = moment();
+        const endDateMoment = moment(endDate);
+
+        if (endDateMoment.isAfter(currentDate)) {
+            return res.status(400).json({
+                msg: "La fecha límite no puede ser mayor que la fecha actual",
+            });
+        }
+
         where.deletedAt = null;
         where.dateTime = {
             $gte: initDate,
             $lte: endDate,
         };
-
-        // const result = await pronosticServices.getPronosticByDate(initDate, endDate)
 
         const totalCount = await Pronostic.countDocuments(where);
         const result = await Pronostic.find(where)
@@ -157,6 +185,16 @@ module.exports = {
                 });
             }
 
+            // Validar que endDate no sea mayor que la fecha actual
+            const currentDate = moment();
+            const endDateMoment = moment(endDate);
+
+            if (endDateMoment.isAfter(currentDate)) {
+                return res.status(400).json({
+                    msg: "La fecha límite no puede ser mayor que la fecha actual",
+                });
+            }
+
             // Se recupera los datos climáticos dentro del rango de fechas
             const weatherDataResult = await WeatherData.find({
                 dateTime: {
@@ -185,7 +223,6 @@ module.exports = {
                 });
             }
 
-            moment.tz.setDefault("America/Bogota");
             let dateTime = moment();
             dateTime = dateTime.startOf('hour').add(1, 'hour');
             dateTime = dateTime.toDate();
