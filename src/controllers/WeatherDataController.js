@@ -101,41 +101,41 @@ class WeatherDataController {
     const { windSpeed, temperature, humidity, barometricPressure } = req.body;
 
     try {
-      if (
-        // windSpeed === undefined ||
-        temperature === undefined ||
-        barometricPressure === undefined ||
-        humidity === undefined
-      ) {
-        return res.status(400).json({
-          msg: "Los campos windSpeed, temperature y humidity son requeridos",
-        });
-      }
+      // if (
+      //   // windSpeed === undefined ||
+      //   temperature === undefined ||
+      //   barometricPressure === undefined ||
+      //   humidity === undefined
+      // ) {
+      //   return res.status(400).json({
+      //     msg: "Los campos windSpeed, temperature y humidity son requeridos",
+      //   });
+      // }
 
-      // Valido los valores enviado individualmente
-      if (windSpeed && (windSpeed < 0 || windSpeed > 200)) {
-        return res.status(400).json({
-          msg: `El valor del viendo debe ir entre 0 y 200 pero se ha enviado ${windSpeed}`,
-        });
-      }
+      // // Valido los valores enviado individualmente
+      // if (windSpeed && (windSpeed < 0 || windSpeed > 200)) {
+      //   return res.status(400).json({
+      //     msg: `El valor del viendo debe ir entre 0 y 200 pero se ha enviado ${windSpeed}`,
+      //   });
+      // }
 
-      if (temperature < -100 || temperature > 100) {
-        return res.status(400).json({
-          msg: `El valor de la temperatura debe ir entre -100 y 100 pero se ha enviado ${temperature}`,
-        });
-      }
+      // if (temperature < -100 || temperature > 100) {
+      //   return res.status(400).json({
+      //     msg: `El valor de la temperatura debe ir entre -100 y 100 pero se ha enviado ${temperature}`,
+      //   });
+      // }
 
-      if (humidity < 0 || humidity > 200) {
-        return res.status(400).json({
-          msg: `El valor de la humedad debe ir entre 0 y 200 pero se ha enviado ${humidity}`,
-        });
-      }
+      // if (humidity < 0 || humidity > 200) {
+      //   return res.status(400).json({
+      //     msg: `El valor de la humedad debe ir entre 0 y 200 pero se ha enviado ${humidity}`,
+      //   });
+      // }
 
-      if (barometricPressure < 0 || barometricPressure > 2000) {
-        return res.status(400).json({
-          msg: `El valor de la presión atmosférica debe ir entre 0 y 2000 pero se ha enviado ${barometricPressure}`,
-        });
-      }
+      // if (barometricPressure < 0 || barometricPressure > 2000) {
+      //   return res.status(400).json({
+      //     msg: `El valor de la presión atmosférica debe ir entre 0 y 2000 pero se ha enviado ${barometricPressure}`,
+      //   });
+      // }
 
       moment.tz.setDefault("America/Bogota");
       const dateTime = moment().toDate();

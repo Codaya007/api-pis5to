@@ -13,6 +13,10 @@ const connectDB = async () => {
           delete ret._id; // Eliminar el campo _id
           delete ret.__v; // Eliminar el campo __v si es necesario
           delete ret.external_id; // Eliminar el campo __v si es necesario
+          delete ret.updatedAt;
+          delete ret.token;
+          delete ret.password;
+          delete ret.tokenExpiresAt;
         }
       },
     });
