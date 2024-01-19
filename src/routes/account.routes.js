@@ -5,6 +5,7 @@ var cuentaController = require("../controllers/cuentaController");
 const isLoggedIn = require("../policies/isLoggedIn");
 const {
   createAccountSchema,
+  changePasswordSchema,
   editAccountSchema,
 } = require("../validationSchemas/account");
 const middleware = require("../middlewares");
@@ -22,7 +23,7 @@ router.get("/", isLoggedIn, cuentaController.getAllAcounts);
  * @desc Obtener cuenta por id
  * @access Public
  */
-router.get("/:external", cuentaController.getCuentaByExternalId);
+router.get("/:external", isLoggedIn, cuentaController.getCuentaByExternalId);
 
 /**
  * @route POST/

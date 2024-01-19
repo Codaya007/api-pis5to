@@ -6,7 +6,7 @@ module.exports = {
   uploadFile: async (req, res) => {
     upload.single("Photo")(req, res, (error) => {
       saveImage(req.file);
-      res.send({ data: "photo saved" });
+      res.status(200).send({ data: "photo saved" });
     });
   },
 };

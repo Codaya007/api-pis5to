@@ -26,7 +26,7 @@ const accountSchema = new Schema(
     password: {
       type: String,
       required: true,
-      min: 5,
+      min: 8,
       max: 61,
     },
     avatar: {
@@ -39,6 +39,10 @@ const accountSchema = new Schema(
       maxLength: 30,
       isIn: ["ACTIVA", "BLOQUEADA", "INACTIVA"],
       default: "ACTIVA",
+    },
+    deletedAt: {
+      type: Date,
+      required: false,
     },
     token: {
       type: String,
