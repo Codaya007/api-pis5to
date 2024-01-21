@@ -1,8 +1,8 @@
 
-const generatePronostic = async (weatherData) =>{
+const generatePronostic = async (weatherData) => {
     // TODO: implementar modelo
 
-    const result = {temperature: 30 , humidity: 25, pressure: 0};
+    const result = { windSpeed: 23.5, temperature: 30, humidity: 25, barometricPressure: 0 };
 
     return result;
 }
