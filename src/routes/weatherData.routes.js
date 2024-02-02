@@ -19,7 +19,7 @@ weatherDataRouter.get(
 // Servicio público ya que lo usará la mota padre
 weatherDataRouter.post(
   "/",
-  isLoggedIn,
+  // isLoggedIn,
   validateRequestBody(createWeatherDataSchema),
   weatherDataController.create
 );
