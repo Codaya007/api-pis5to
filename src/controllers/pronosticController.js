@@ -7,7 +7,7 @@ const moment = require("moment-timezone");
 const WeatherConditions = require("../models/weatherConditions");
 moment.tz.setDefault("America/Bogota");
 
-const HORAS_DIA = 24;
+const HORAS_DIA = 23;
 
 module.exports = {
     createPronostic: async (req, res) => {
@@ -15,7 +15,6 @@ module.exports = {
             // Variable para trabajar con fechas
             let dateTime = moment();
 
-            // TODO considerar hacer paginacion para traernos los datos de los anteriores 3 dias??
             // Se recupera todos los datos climáticos hasta la fecha
             const weatherDataResult = await WeatherData.find();
 
@@ -53,7 +52,7 @@ module.exports = {
                 arrayPronosticos.push(pronostic);
             }
 
-            // Se llena el array para las condicoines climaticas
+            // Se llena el array para las condiciones climaticas
             let arrayWeatherConditions = [];
             for (let index = 0; index < arrayPronosticos.length; index++) {
                 // Todo añadir a la función, los demás parametros que faltan (velodicada del viento, presion)
@@ -85,7 +84,13 @@ module.exports = {
                 })
             }
 
-            if (HORAS_DIA == (HORAS_DIA - limite)) {
+            //! Eliminar despues
+            // Promise.all(pronosticos.map(pronostico => Pronostic.create(pronostico)))
+            //     .catch(error => {
+            //         console.error("Error insertar:", error);
+            //     });
+
+            if (HORAS_DIA + 1 == (HORAS_DIA + 1 - limite)) {
                 // Creamos pronósticos porque es un nuevo día
                 Promise.all(pronosticos.map(pronostico => Pronostic.create(pronostico)))
                     .catch(error => {
@@ -144,6 +149,8 @@ module.exports = {
             }));
         }
 
+        data.sort((a, b) => b.dateTime - a.dateTime);
+
         res.status(200);
         res.json({
             msg: "OK",
@@ -156,27 +163,27 @@ module.exports = {
         const { populate = false } = req.query;
         const { external_id } = req.params;
 
-        let result = await Pronostic.findOne({ external_id })
+        let data = await Pronostic.findOne({ external_id })
 
-        if (!result) {
+        if (!data) {
             return res.status(404).json({
                 msg: "No se encontro el registro especificado"
             })
         }
 
         if (populate) {
-            const weatherConditionsResult = await WeatherConditions.findOne({ _id: result.pronostic });
+            const weatherConditionsResult = await WeatherConditions.findOne({ _id: data.pronostic });
             if (!weatherConditionsResult) {
                 return res.status(404).json({
                     msg: "No se encontro una condición climática"
                 })
             }
-            result.pronostic = weatherConditionsResult;
+            data.pronostic = weatherConditionsResult;
         }
 
         res.status(200).json({
             msg: "OK",
-            result,
+            data,
         });
     },
 
@@ -193,7 +200,18 @@ module.exports = {
             });
         }
 
-        // Validar que endDate no sea mayor que la fecha actual
+        //! probar funcionalidad
+        //? Verificar si las fechas enviadas son válidas
+        const isValidInitDate = moment(initDate, 'YYYY-MM-DD', true).isValid();
+        const isValidEndDate = moment(endDate, 'YYYY-MM-DD', true).isValid();
+
+        if (!isValidInitDate || !isValidEndDate) {
+            return res.status(400).json({
+                msg: "Las fechas enviadas no son válidas",
+            });
+        }
+
+        //* Validar que endDate no sea mayor que la fecha actual
         const currentDate = moment();
         const endDateMoment = moment(endDate);
 
@@ -205,6 +223,7 @@ module.exports = {
 
         const fechaInicio = moment(initDate);
         const fechaFin = moment(endDate).startOf('day').add(1, 'day');
+        // const fechaFin = moment(endDate);
 
         where.deletedAt = null;
         where.dateTime = {
@@ -213,13 +232,15 @@ module.exports = {
         };
 
         const totalCount = await Pronostic.countDocuments(where);
-        let result = await Pronostic.find(where)
+        let data = await Pronostic.find(where)
             .skip((parseInt(page) - 1) * limit)
             .limit(limit)
             .exec();
 
+        data.sort((a, b) => b.dateTime - a.dateTime);
+
         if (populate) {
-            result = await Promise.all(result.map(async (element) => {
+            data = await Promise.all(data.map(async (element) => {
                 const weatherConditionsResult = await WeatherConditions.findOne({ _id: element.pronostic });
                 element.pronostic = weatherConditionsResult;
                 return element;
@@ -230,7 +251,7 @@ module.exports = {
         res.json({
             msg: "OK",
             totalCount,
-            result,
+            data,
         });
     },
 
