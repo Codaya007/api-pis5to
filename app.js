@@ -8,7 +8,10 @@ var routes = require("./src/routes");
 const { errorHandler } = require("./src/middlewares");
 const notFound = require("./src/middlewares/notFound");
 
+const cors = require("cors");
+
 const app = express();
+app.use(cors());
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));

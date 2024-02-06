@@ -48,7 +48,7 @@ pronosticRouter.get(
  * @desc Crea un pronóstico
  */
 pronosticRouter.post(
-  "/create/:initDate/:endDate",
+  "/create",
   pronosticController.createPronostic
 );
 
