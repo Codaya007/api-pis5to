@@ -5,7 +5,7 @@ const errorHandler = async (error, req, res, next) => {
   const errorMessage = error.errorMessage || "Algo salió mal";
   const details = error.details || error.message || null;
 
-  res.status(status).json({ errorMessage, details });
+  res.status(status).json({ msg: errorMessage, details });
 };
 
 module.exports = errorHandler;

@@ -66,7 +66,7 @@ class WeatherConditionsController {
     try {
       const weatherConditions = await WeatherConditions.find({}, { __v: 0 });
 
-      return res.json({ msg: "OK!", code: 200, info: weatherConditions });
+      return res.json({ msg: "OK!", code: 200, results: weatherConditions });
     } catch (error) {
       // console.error("Error al listar condiciones climáticas:", error);
       return res
@@ -86,7 +86,7 @@ class WeatherConditionsController {
       );
 
       if (weatherCondition) {
-        return res.json({ msg: "OK!", code: 200, info: weatherCondition });
+        return res.json({ msg: "OK!", code: 200, results: weatherCondition });
       } else {
         return res
           .status(404)
@@ -135,7 +135,7 @@ class WeatherConditionsController {
         return res.status(200).json({
           msg: "Se ha modificado la condición climática",
           code: 200,
-          info: result,
+          results: result,
         });
       } else {
         return res

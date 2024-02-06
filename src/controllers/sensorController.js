@@ -4,9 +4,9 @@ module.exports = {
   getSensorById: async (req, res) => {
     const { external_id } = req.params;
 
-    const result = await Sensor.findOne({ external_id });
+    const results = await Sensor.findOne({ external_id });
 
-    if (!result) {
+    if (!results) {
       return res.status(404).json({
         msg: "No se encontro el sensor especificado",
       });
@@ -14,7 +14,7 @@ module.exports = {
 
     return res.status(200).json({
       msg: "OK",
-      result,
+      results,
     });
   },
 
@@ -23,7 +23,7 @@ module.exports = {
       const { page = 1, limit = 10, ...where } = req.query;
 
       const totalCount = await Sensor.countDocuments(where);
-      const data = await Sensor.find(where)
+      const results = await Sensor.find(where)
         .skip((parseInt(page) - 1) * limit)
         .limit(limit)
         .exec();
@@ -32,7 +32,7 @@ module.exports = {
       return res.json({
         msg: "OK",
         totalCount,
-        data,
+        results,
       });
     } catch (error) {
       res.status(400);
@@ -50,13 +50,13 @@ module.exports = {
         });
       }
 
-      const result = await Sensor.create({ name, unitMeasurement });
+      const results = await Sensor.create({ name, unitMeasurement });
 
-      //   console.log({ result });
+      //   console.log({ results });
 
       return res.status(201).json({
         msg: "OK",
-        result,
+        results,
       });
     } catch (error) {
       return res.status(400).json({
@@ -79,19 +79,19 @@ module.exports = {
         });
       }
 
-      const result = await Sensor.findOneAndUpdate(
+      const results = await Sensor.findOneAndUpdate(
         { external_id },
         { name, unitMeasurement },
         { new: true }
       );
 
-      await result.refreshExternal();
+      await results.refreshExternal();
 
-      //   console.log({ result });
+      //   console.log({ results });
 
       return res.status(201).json({
         msg: "OK",
-        result,
+        results,
       });
     } catch (error) {
       return res.status(400).json({

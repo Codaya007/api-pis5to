@@ -10,25 +10,27 @@ module.exports = async (req, res, next) => {
     if (user.deletedAt) {
       return next({
         status: 403,
-        message:
-          "Su usuario fue dado de baja, contáctese con el administrador.",
+        msg: "Su usuario fue dado de baja, contáctese con el administrador.",
       });
     }
 
     if (user.state == "BLOQUEADA") {
       return next({
         status: 403,
-        message: "Usuario bloqueado, contáctese con el administrador.",
+        msg: "Usuario bloqueado, contáctese con el administrador.",
       });
     }
 
     req.user = user;
+    req.me = user;
 
     return next();
   } catch (error) {
+    console.log({ error });
+
     next({
       status: 401,
-      message: error.message,
+      msg: error.msg,
     });
   }
 };

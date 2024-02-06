@@ -1,19 +1,28 @@
 const multer = require("multer");
 const upload = multer({ dest: "upload/" });
 const fs = require("node:fs");
+const { v4: uuidv4 } = require("uuid");
 
 module.exports = {
   uploadFile: async (req, res) => {
-    upload.single("Photo")(req, res, (error) => {
-      let result = saveImage(req.file);
+    const host = req.headers.host;
+
+    upload.single("image")(req, res, (error) => {
+      if (!req.file) {
+        return res.status(400).json({ msg: "El campo image es requerido" });
+      }
+
+      let { success: result, url } = saveImage(req.file);
+
       if (!result) {
-        res.status(400).send({
-          data: "Formato no aceptado, solo se apcepta jpg, jpeg, png",
+        res.status(400).json({
+          msg: "Formato no aceptado, solo se apcepta jpg, jpeg, png",
         });
       } else {
-        res
-          .status(200)
-          .send({ data: "photo saved", nombre: req.file.originalname });
+        res.status(200).json({
+          msg: "Imagen guardada exitosamente",
+          results: { url },
+        });
       }
     });
   },
@@ -22,12 +31,14 @@ module.exports = {
 const saveImage = (file) => {
   const extension = obtenerExtension(file.originalname);
   if (extension == "jpg" || extension == "jpeg" || extension == "png") {
-    const newPath = `upload/${file.originalname}`;
-    console.log(file.originalname);
+    const id = uuidv4();
+    const newPath = `upload/${id}.${extension}`;
+
     fs.renameSync(file.path, newPath);
-    return true;
+
+    return { success: true, url: `${id}.${extension}` };
   } else {
-    return false;
+    return { success: false };
   }
 };
 

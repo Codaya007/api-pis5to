@@ -28,7 +28,7 @@ module.exports = {
       // Ordena las fechas desde la fecha más antigua hasta la más actual. (Siendo la más antigua la última)
       weatherDataResult.sort((a, b) => b.dateTime - a.dateTime);
 
-      // Mapeamos la data y solo extraemos los datos importantes
+      // Mapeamos la results y solo extraemos los datos importantes
       let arrayDatos = weatherDataResult.map((element) => {
         return {
           windSpeed: element.windSpeed,
@@ -46,7 +46,7 @@ module.exports = {
       );
       console.log({ limite });
       for (let index = 0; index < HORAS_DIA - limite; index++) {
-        // Generación del pronóstico, con la data recibida
+        // Generación del pronóstico, con la results recibida
         const pronostic = await pronosticServices.generatePronostic(arrayDatos);
         // Array que se va a actualizar para generar los demás arrays
         arrayDatos.push(pronostic);
@@ -145,14 +145,14 @@ module.exports = {
     where.deletedAt = null;
 
     const totalCount = await Pronostic.countDocuments(where);
-    let data = await Pronostic.find(where)
+    let results = await Pronostic.find(where)
       .skip((parseInt(page) - 1) * limit)
       .limit(limit)
       .exec();
 
     if (populate) {
-      data = await Promise.all(
-        data.map(async (element) => {
+      results = await Promise.all(
+        results.map(async (element) => {
           weatherConditionsResult = await WeatherConditions.findOne({
             _id: element.pronostic,
           });
@@ -162,13 +162,13 @@ module.exports = {
       );
     }
 
-    data.sort((a, b) => b.dateTime - a.dateTime);
+    results.sort((a, b) => b.dateTime - a.dateTime);
 
     res.status(200);
     return res.json({
       msg: "OK",
       totalCount,
-      data,
+      results,
     });
   },
 
@@ -176,9 +176,9 @@ module.exports = {
     const { populate = false } = req.query;
     const { external_id } = req.params;
 
-    let data = await Pronostic.findOne({ external_id });
+    let results = await Pronostic.findOne({ external_id });
 
-    if (!data) {
+    if (!results) {
       return res.status(404).json({
         msg: "No se encontro el registro especificado",
       });
@@ -186,19 +186,19 @@ module.exports = {
 
     if (populate) {
       const weatherConditionsResult = await WeatherConditions.findOne({
-        _id: data.pronostic,
+        _id: results.pronostic,
       });
       if (!weatherConditionsResult) {
         return res.status(404).json({
           msg: "No se encontro una condición climática",
         });
       }
-      data.pronostic = weatherConditionsResult;
+      results.pronostic = weatherConditionsResult;
     }
 
     res.status(200).json({
       msg: "OK",
-      data,
+      results,
     });
   },
 
@@ -249,16 +249,16 @@ module.exports = {
     };
 
     const totalCount = await Pronostic.countDocuments(where);
-    let data = await Pronostic.find(where)
+    let results = await Pronostic.find(where)
       .skip((parseInt(page) - 1) * limit)
       .limit(limit)
       .exec();
 
-    data.sort((a, b) => b.dateTime - a.dateTime);
+    results.sort((a, b) => b.dateTime - a.dateTime);
 
     if (populate) {
-      data = await Promise.all(
-        data.map(async (element) => {
+      results = await Promise.all(
+        results.map(async (element) => {
           const weatherConditionsResult = await WeatherConditions.findOne({
             _id: element.pronostic,
           });
@@ -272,7 +272,7 @@ module.exports = {
     res.json({
       msg: "OK",
       totalCount,
-      data,
+      results,
     });
   },
 
@@ -332,7 +332,7 @@ module.exports = {
       // Ordena las fechas desde la fecha más antigua hasta la más actual. (Siendo la más antigua la última)
       weatherDataResult.sort((a, b) => b.dateTime - a.dateTime);
 
-      // Mapeamos la data y solo extraemos los datos importantes
+      // Mapeamos la results y solo extraemos los datos importantes
       let arrayDatos = weatherDataResult.map((element) => {
         return {
           windSpeed: element.windSpeed,
@@ -350,7 +350,7 @@ module.exports = {
       );
       console.log({ limite });
       for (let index = 0; index < HORAS_DIA - limite; index++) {
-        // Generación del pronóstico, con la data recibida
+        // Generación del pronóstico, con la results recibida
         const pronostic = await pronosticServices.generatePronostic(arrayDatos);
         // Array que se va a actualizar para generar los demás arrays
         arrayDatos.push(pronostic);
@@ -409,7 +409,7 @@ module.exports = {
 
       res.status(201).json({
         msg: "OK",
-        pronosticos,
+        results: pronosticos,
       });
     } catch (error) {
       res.status(400).json({

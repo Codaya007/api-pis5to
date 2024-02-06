@@ -7,9 +7,9 @@ module.exports = {
   getNodeById: async (req, res) => {
     const { external_id } = req.params;
 
-    const result = await Node.findOne({ external_id });
+    const results = await Node.findOne({ external_id });
 
-    if (!result) {
+    if (!results) {
       return res.status(404).json({
         msg: "No se encontro el nodo especificado",
       });
@@ -17,7 +17,7 @@ module.exports = {
 
     return res.status(200).json({
       msg: "OK",
-      result,
+      results,
     });
   },
 
@@ -35,7 +35,7 @@ module.exports = {
       return res.json({
         msg: "OK",
         totalCount,
-        data,
+        results: data,
       });
     } catch (error) {
       res.status(400);
@@ -46,7 +46,7 @@ module.exports = {
   createNode: async (req, res) => {
     try {
       const { tag, detail, ip, rol, sensor } = req.body;
-      const createdBy = req.me.id;
+      const createdBy = req.me?.id;
 
       const data = {
         tag: tag,
@@ -62,11 +62,11 @@ module.exports = {
         detail === undefined ||
         ip === undefined ||
         rol === undefined ||
-        sensor === undefined ||
-        createdBy === undefined
+        sensor === undefined
+        // createdBy === undefined
       ) {
         return res.status(400).json({
-          msg: "Los campos titulo, detalle, ip, rol, sensor y creado por son requeridos",
+          msg: "Los campos tag, detalle, ip, rol y sensor son requeridos",
         });
       }
 
@@ -94,17 +94,17 @@ module.exports = {
         });
       }
 
-      const result = await Node.create(data);
+      const results = await Node.create(data);
 
       await rolResult.refreshExternal();
       await sensorResult.refreshExternal();
       await accountResult.refreshExternal();
 
-      //   console.log({ result });
+      //   console.log({ results });
 
       return res.status(201).json({
         msg: "OK",
-        result,
+        results,
       });
     } catch (error) {
       return res.status(400).json({
@@ -136,20 +136,28 @@ module.exports = {
         sensor: sensor,
       };
 
-      const rolResult = await Rol.findOne({ external_id: rol });
+      if (rol) {
+        const rolResult = await Rol.findOne({ external_id: rol });
 
-      if (!rolResult) {
-        return res.status(404).json({
-          msg: "El registro especificado (rol) no existe",
-        });
+        if (!rolResult) {
+          return res.status(404).json({
+            msg: "El registro especificado (rol) no existe",
+          });
+        }
+
+        // await rolResult.refreshExternal();
       }
 
-      const sensorResult = await Sensor.findOne({ external_id: sensor });
+      if (sensor) {
+        const sensorResult = await Sensor.findOne({ external_id: sensor });
 
-      if (!sensorResult) {
-        return res.status(404).json({
-          msg: "El registro especificado (sensor) no existe",
-        });
+        if (!sensorResult) {
+          return res.status(404).json({
+            msg: "El registro especificado (sensor) no existe",
+          });
+        }
+
+        // await sensorResult.refreshExternal();
       }
 
       //   const accountResult = await Account.findOne({ external_id: createdBy });
@@ -160,17 +168,13 @@ module.exports = {
       //     });
       //   }
 
-      const result = await Node.findOneAndUpdate({ external_id }, data);
+      const results = await Node.findOneAndUpdate({ external_id }, data);
 
-      await rolResult.refreshExternal();
-      await sensorResult.refreshExternal();
-      //   await accountResult.refreshExternal();
-
-      //   console.log({ result });
+      //   console.log({ results });
 
       return res.status(201).json({
         msg: "OK",
-        result,
+        results,
       });
     } catch (error) {
       return res.status(400).json({

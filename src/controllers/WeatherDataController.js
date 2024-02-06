@@ -56,10 +56,10 @@ class WeatherDataController {
 
       where.dateTime = dateTime;
 
-      console.log({ where });
+      // console.log({ where });
 
       const totalCount = await WeatherData.countDocuments(where);
-      const data = await WeatherData.find(where)
+      const results = await WeatherData.find(where)
         .skip((parseInt(page) - 1) * limit)
         .limit(limit)
         .sort("dateTime DESC")
@@ -68,7 +68,7 @@ class WeatherDataController {
       res.status(200).json({
         msg: "OK",
         totalCount,
-        data,
+        results,
       });
     } catch (error) {
       console.error(error);
@@ -79,21 +79,21 @@ class WeatherDataController {
   async getById(req, res) {
     const { external_id } = req.params;
 
-    const data = await WeatherData.findOne({
+    const results = await WeatherData.findOne({
       external_id,
     });
 
-    if (!data) {
+    if (!results) {
       return res.status(404).json({
         msg: "El registro especificado no existe",
       });
     }
 
-    // await data.refreshExternal();
+    // await results.refreshExternal();
 
     res.status(200).json({
       msg: "OK",
-      data,
+      results,
     });
   }
 
@@ -140,7 +140,7 @@ class WeatherDataController {
       moment.tz.setDefault("America/Bogota");
       const dateTime = moment().toDate();
 
-      const data = await WeatherData.create({
+      const results = await WeatherData.create({
         dateTime,
         windSpeed,
         humidity,
@@ -150,7 +150,7 @@ class WeatherDataController {
 
       res.status(201).json({
         msg: "OK",
-        data,
+        results,
       });
     } catch (error) {
       res.json({
