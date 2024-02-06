@@ -1,14 +1,15 @@
-var createError = require("http-errors");
-var express = require("express");
-var path = require("path");
-var cookieParser = require("cookie-parser");
-var logger = require("morgan");
+const express = require("express");
+const path = require("path");
+const cookieParser = require("cookie-parser");
+const logger = require("morgan");
+const cors = require("cors");
 
-var routes = require("./src/routes");
+const routes = require("./src/routes");
 const { errorHandler } = require("./src/middlewares");
 const notFound = require("./src/middlewares/notFound");
 
 const app = express();
+app.use(cors());
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -22,7 +23,6 @@ app.use(express.static(path.join(__dirname, "upload")));
 
 //! Al añadir cruds no modificar este archivo sino ./routes/index.js
 app.use("/", routes);
-
 app.use(notFound);
 app.use(errorHandler);
 

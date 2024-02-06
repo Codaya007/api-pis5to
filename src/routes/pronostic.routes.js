@@ -41,5 +41,9 @@ pronosticRouter.get(
  * @desc Crea un pronóstico
  */
 pronosticRouter.post("/", pronosticController.createPronostic);
+// pronosticRouter.post(
+//   "/create",
+//   pronosticController.createPronostic
+// );
 
 module.exports = pronosticRouter;
