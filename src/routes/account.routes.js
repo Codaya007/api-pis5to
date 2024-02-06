@@ -1,11 +1,10 @@
-// const { Router } = require("express");
 var express = require("express");
 var router = express.Router();
 var cuentaController = require("../controllers/cuentaController");
 const isLoggedIn = require("../policies/isLoggedIn");
 const {
   createAccountSchema,
-  changePasswordSchema,
+  // changePasswordSchema,
   editAccountSchema,
 } = require("../validationSchemas/account");
 const middleware = require("../middlewares");
@@ -15,7 +14,6 @@ const middleware = require("../middlewares");
  *  @dec Obtener todas las cuentas
  *  @access Logged
  */
-
 router.get("/", isLoggedIn, cuentaController.getAllAcounts);
 
 /**
@@ -30,7 +28,6 @@ router.get("/:external", isLoggedIn, cuentaController.getCuentaByExternalId);
  * @desc Crear cuenta
  * @access Public
  */
-
 router.post(
   "/",
   middleware.validateRequestBody(createAccountSchema),
@@ -42,7 +39,6 @@ router.post(
  * @desc Actualizar cuenta por id
  * @access Public
  */
-
 router.put(
   "/:external",
   isLoggedIn,

@@ -17,12 +17,12 @@ router.get("/", (req, res, next) => {
 
 router.use("/auth", authRouter);
 router.use("/weatherconditions", weatherConditionsRouter);
-router.use("/pronostic", pronosticRouter);
-router.use("/weatherdata", weatherDataRouter);
-router.use("/node", nodeRouter);
-router.use("/rol", rolRouter);
+router.use("/pronostics", pronosticRouter);
+router.use("/weatherdatas", weatherDataRouter);
+router.use("/nodes", nodeRouter);
+router.use("/roles", rolRouter);
 router.use("/accounts", accountRouter);
 router.use("/images", imageRouter);
-router.use("/sensor", sensorRouter);
+router.use("/sensors", sensorRouter);
 
 module.exports = router;
