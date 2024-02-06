@@ -10,7 +10,8 @@ module.exports = {
   loginUser: async (req, res) => {
     const { email, password } = req.body;
     // const account = await authService.login(email, password);
-    const account = await Account.findOne({ email });
+    let account = await Account.findOne({ email });
+
     if (!account) {
       return res.json({ status: 400, message: "La cuenta no fue encontrada" });
     }
@@ -20,6 +21,12 @@ module.exports = {
     if (account.state == "INACTIVA") {
       return res.json({ status: 401, message: "Cuenta inactivada" });
     }
+    const datos = {
+      external_id: account.external_id,
+      name: account.name,
+      lastname: account.lastname,
+      avatar: account.avatar,
+    };
     const compare = bcrypt.compareSync(password, account.password);
     if (!compare) {
       return res.json({ status: 401, message: "Credenciales incorrectas" });
@@ -27,12 +34,11 @@ module.exports = {
     const payload = { id: account.id };
     const token = await generateToken(payload);
 
-    return res.status(200).json({ account, token });
+    return res.status(200).json({ datos, token });
   },
 
   activateAccount: async (req, res, next) => {
     const { email } = req.body;
-    // const account = await authService.login(email, password);
     const account = await Account.findOne({ email });
     if (!account) {
       return res.json({ status: 400, message: "La cuenta no fue encontrada" });
@@ -48,7 +54,6 @@ module.exports = {
 
   generatePasswordRecoveryToken: async (req, res, next) => {
     const { email } = req.body;
-    // const token = await authService.generatePasswordRecoveryToken(email);
     const account = await Account.findOne({ email });
 
     if (!account) {
