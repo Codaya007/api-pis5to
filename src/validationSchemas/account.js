@@ -29,7 +29,7 @@ const changePasswordSchema = Joi.object({
     "*": "El token es requerido",
   }),
   password: Joi.string().required().min(8).messages({
-    "*": "El campo contraseña es requerido de tener un minimo de 8 caracteres",
+    "*": "La contraseña debe tener un minimo de 8 caracteres",
   }),
 });
 

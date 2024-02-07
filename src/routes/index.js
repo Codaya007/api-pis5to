@@ -1,5 +1,6 @@
 const express = require("express");
 const pronosticRouter = require("./pronosticRouter");
+const cors = require("cors");
 const weatherDataRouter = require("./weatherData.routes");
 const nodeRouter = require("./node.routes");
 const rolRouter = require("./rol.routes");
@@ -10,6 +11,8 @@ const sensorRouter = require("./sensor.routes");
 const weatherConditionsRouter = require("./weatherConditions");
 
 const router = express.Router();
+const whiteList = ["http://localhost:3001"];
+router.use(cors({ origin: whiteList }));
 
 router.get("/", (req, res, next) => {
   res.render("index", { title: "Express" });

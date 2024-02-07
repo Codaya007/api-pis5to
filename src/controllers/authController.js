@@ -67,7 +67,7 @@ module.exports = {
       subject: "Recuperacion de contraseña",
       html: `
        <b>Haga click en el siguiente enlace o pégelo en su navegador web para la recuperación de contraseña</b>
-       <a href="http://localhost:3000/auth/recovery-password/${token}">http://localhost:3000/auth/recovery-password/${token}</a>
+       <a href="http://localhost:3001/recoverPassword/${token}">http://localhost:3001/recoverPassword/${token}</a>
       `,
     };
     await transporter.sendMail(mailOptions);
