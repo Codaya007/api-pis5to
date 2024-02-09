@@ -1,58 +1,73 @@
 const { generateToken } = require("../helpers/tokenGeneration");
-const authService = require("../services/authService");
+// const authService = require("../services/authService");
 const { hashPassword } = require("../helpers/hashPassword");
-const { tokenValidation } = require("../helpers/validateToken");
+// const { tokenValidation } = require("../helpers/validateToken");
 const { generateUrlFriendlyToken } = require("../helpers");
 const Account = require("../models/Account");
 const bcrypt = require("bcrypt");
 const transporter = require("../config/emailConfig");
+
 module.exports = {
   loginUser: async (req, res) => {
     const { email, password } = req.body;
     // const account = await authService.login(email, password);
-    const account = await Account.findOne({ email });
+    let account = await Account.findOne({ email });
+
     if (!account) {
-      return res.json({ status: 400, message: "La cuenta no fue encontrada" });
+      return res.json({ status: 400, msg: "La cuenta no fue encontrada" });
     }
+
     if (account.state == "BLOQUEADA") {
-      return res.json({ status: 401, message: "Cuenta bloqueada" });
+      return res.json({ status: 401, msg: "Cuenta bloqueada" });
     }
+
     if (account.state == "INACTIVA") {
-      return res.json({ status: 401, message: "Cuenta inactivada" });
+      return res.json({ status: 401, msg: "Cuenta inactivada" });
     }
+
+    const datos = {
+      external_id: account.external_id,
+      name: account.name,
+      lastname: account.lastname,
+      avatar: account.avatar,
+    };
+
     const compare = bcrypt.compareSync(password, account.password);
+
     if (!compare) {
-      return res.json({ status: 401, message: "Credenciales incorrectas" });
+      return res.json({ status: 401, msg: "Credenciales incorrectas" });
     }
+
     const payload = { id: account.id };
     const token = await generateToken(payload);
 
-    return res.status(200).json({ account, token });
+    return res.status(200).json({ results: datos, token });
   },
 
   activateAccount: async (req, res, next) => {
     const { email } = req.body;
-    // const account = await authService.login(email, password);
+
     const account = await Account.findOne({ email });
+
     if (!account) {
-      return res.json({ status: 400, message: "La cuenta no fue encontrada" });
+      return res.json({ status: 400, msg: "La cuenta no fue encontrada" });
     }
 
     account.state = "ACTIVA";
     await account.save();
+
     return res.status(200).json({
-      message: "Cuenta activada",
-      account,
+      msg: "Cuenta activada",
+      results: account,
     });
   },
 
   generatePasswordRecoveryToken: async (req, res, next) => {
     const { email } = req.body;
-    // const token = await authService.generatePasswordRecoveryToken(email);
     const account = await Account.findOne({ email });
 
     if (!account) {
-      return res.json({ status: 400, message: "Email incorrecto" });
+      return res.json({ status: 400, msg: "Email incorrecto" });
     }
 
     const token = generateUrlFriendlyToken();
@@ -60,7 +75,7 @@ module.exports = {
     account.tokenExpiresAt = new Date(Date.now() + 3 * 60 * 60 * 100);
     await account.save();
 
-    console.log(token);
+    // console.log(token);
     const mailOptions = {
       form: transporter.options.auth.user,
       to: email,
@@ -70,24 +85,26 @@ module.exports = {
        <a href="http://localhost:3000/auth/recovery-password/${token}">http://localhost:3000/auth/recovery-password/${token}</a>
       `,
     };
+
     await transporter.sendMail(mailOptions);
 
     return res.status(200).json({
-      message: "El link de acceso se le envio a su email de registro",
+      msg: "El link de acceso se le envio a su email de registro",
     });
   },
 
   recoverPassword: async (req, res, next) => {
     const { token } = req.params;
     const { password } = req.body;
-    // const account = await authService.validateTokenAccount(tokenA);
+
     const account = await Account.findOne({ token });
+
     if (!account) {
-      return res.json({ status: 400, message: "Token invalido" });
+      return res.json({ status: 400, msg: "Token invalido" });
     }
 
     if (Date.now() > account.tokenExpiresAt) {
-      return res.json({ status: 401, message: "Token a expirado" });
+      return res.json({ status: 401, msg: "Token a expirado" });
     }
 
     account.password = await hashPassword(password);
@@ -96,12 +113,12 @@ module.exports = {
     if (!newUser) {
       return next({
         status: 400,
-        message: "No se ha podido recuperar la contraseña, intente más tarde",
+        msg: "No se ha podido recuperar la contraseña, intente más tarde",
       });
     }
 
     res.status(200).json({
-      message: "Contraseña actualizada exitosamente",
+      msg: "Contraseña actualizada exitosamente",
     });
   },
 };

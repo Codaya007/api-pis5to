@@ -13,7 +13,7 @@ const getCuentaByExternalId = async (external_id) => {
   const cuenta = await Cuenta.findOne({ external_id });
   console.log(cuenta);
   if (!cuenta) {
-    res.json({ status: 400, message: "La cuenta no fue encontrada" });
+    res.json({ status: 400, msg: "La cuenta no fue encontrada" });
   }
 
   return cuenta;
@@ -25,7 +25,7 @@ const createCuenta = async ({ password, ...newUser }) => {
   newUser.password = hashedPassword;
 
   if (cuentaExist) {
-    return res.json({ status: 400, message: "La cuenta ya existe" });
+    return res.json({ status: 400, msg: "La cuenta ya existe" });
   }
 
   const cuenta = await Cuenta.create({
@@ -50,7 +50,7 @@ const updateCuenta = async (external_id, newInfo) => {
 const deleteCuenta = async (external_id) => {
   const accountA = await getCuentaByExternalId(external_id);
   if (!accountA) {
-    return res.json({ status: 400, message: "La cuenta no existe" });
+    return res.json({ status: 400, msg: "La cuenta no existe" });
   }
   const toDelete = await updateCuenta(external_id, {
     email: null,

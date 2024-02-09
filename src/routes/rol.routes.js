@@ -8,38 +8,24 @@ const rolRouter = Router();
  * @route GET /
  * @desc Obtener rol por ID
  */
-rolRouter.get(
-    "/get/:external_id",
-    rolController.getRolById
-);
+rolRouter.get("/get/:external_id", rolController.getRolById);
 
 /**
  * @route GET /
  * @desc Obtener todos los roles
  */
-rolRouter.get(
-    "/list",
-    rolController.list
-);
+rolRouter.get("/", rolController.list);
 
 /**
  * @route POST /
  * @desc Crear un rol
  */
-rolRouter.post(
-    "/create",
-    isLoggedIn,
-    rolController.createRol
-);
+rolRouter.post("/", isLoggedIn, rolController.createRol);
 
 /**
  * @route PUT /
  * @desc Actualizar un rol
  */
-rolRouter.put(
-    "/update",
-    isLoggedIn,
-    rolController.updateRol
-);
+rolRouter.put("/:external_id", isLoggedIn, rolController.updateRol);
 
 module.exports = rolRouter;
