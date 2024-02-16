@@ -19,9 +19,9 @@ const weatherConditionsSchema = new mongoose.Schema({
   },
   windSpeed: {
     from: Number,
-    to: Number
+    to: Number,
   },
-  image: String,
+  image: { type: String, required: true },
   external_id: {
     type: String,
     default: uuidv4,

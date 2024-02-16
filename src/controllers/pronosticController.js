@@ -206,12 +206,7 @@ module.exports = {
     const { initDate, endDate } = req.params;
     const { page = 1, limit = 10, populate = false, ...where } = req.query;
 
-    if (
-      initDate === undefined ||
-      initDate === "" ||
-      endDate === undefined ||
-      endDate === ""
-    ) {
+    if (!initDate || !endDate) {
       return res.status(400).json({
         msg: "Falta especificar el rango de fechas",
       });
