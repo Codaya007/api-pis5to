@@ -1,3 +1,4 @@
+const { FORMAT_BOOLEAN } = require("../constants");
 const WeatherData = require("../models/WeatherData");
 const moment = require("moment-timezone");
 
@@ -9,7 +10,15 @@ const moment = require("moment-timezone");
 class WeatherDataController {
   async list(req, res) {
     try {
-      const { page = 1, limit = 10, since, until, ...where } = req.query;
+      const {
+        page = 1,
+        limit = 10,
+        since,
+        until,
+        populate = false,
+        ...where
+      } = req.query;
+      const formatedPopulate = FORMAT_BOOLEAN[populate];
 
       where.deletedAt = null;
 
@@ -59,11 +68,18 @@ class WeatherDataController {
       // console.log({ where });
 
       const totalCount = await WeatherData.countDocuments(where);
-      const results = await WeatherData.find(where)
-        .skip((parseInt(page) - 1) * limit)
-        .limit(limit)
-        .sort("dateTime DESC")
-        .exec();
+      const results = formatedPopulate
+        ? await WeatherData.find(where)
+            .skip((parseInt(page) - 1) * limit)
+            .limit(limit)
+            .populate("state", ["weatherType", "image", "description"])
+            .sort("dateTime DESC")
+            .exec()
+        : await WeatherData.find(where)
+            .skip((parseInt(page) - 1) * limit)
+            .limit(limit)
+            .sort("dateTime DESC")
+            .exec();
 
       res.status(200).json({
         msg: "OK",
@@ -140,12 +156,16 @@ class WeatherDataController {
       moment.tz.setDefault("America/Bogota");
       const dateTime = moment().toDate();
 
+      // TODO: Actualizar determinación de estado climático
+      const pronostic = await WeatherData.findOne({});
+
       const results = await WeatherData.create({
         dateTime,
         windSpeed,
         humidity,
         temperature,
         barometricPressure,
+        state: pronostic.id,
       });
 
       res.status(201).json({
