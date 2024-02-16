@@ -9,7 +9,6 @@ moment.tz.setDefault("America/Bogota");
 const HORAS_DIA = 23;
 
 module.exports = {
-
     list: async (req, res) => {
         const { page = 1, limit = 10, populate = false, ...where } = req.query;
 

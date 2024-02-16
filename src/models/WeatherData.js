@@ -37,6 +37,11 @@ const WeatherDataSchema = new mongoose.Schema(
       min: 0,
       max: 2000,
     },
+    state: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "WeatherConditions",
+      required: true,
+    },
   },
   {
     timestamps: true,
