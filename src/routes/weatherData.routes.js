@@ -6,9 +6,14 @@ const weatherDataController = new WeatherDataController();
 const weatherDataRouter = express.Router();
 
 // Solo los admins pueden ver el historial de datos climáticos guardados
+<<<<<<< Updated upstream
 weatherDataRouter.get("/", 
 // isLoggedIn,
  weatherDataController.list);
+=======
+weatherDataRouter.get("/", isLoggedIn, weatherDataController.list);
+weatherDataRouter.get("/free", weatherDataController.list);
+>>>>>>> Stashed changes
 
 weatherDataRouter.get(
   "/:external_id",
