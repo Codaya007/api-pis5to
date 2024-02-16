@@ -28,4 +28,10 @@ sensorRouter.post("/", isLoggedIn, sensorController.createSensor);
  */
 sensorRouter.put("/:external_id", isLoggedIn, sensorController.updateSensor);
 
+/**
+ * @route DELETE /
+ * @desc Eliminar un sensor
+ */
+sensorRouter.delete("/:external_id", isLoggedIn, sensorController.deleteById);
+
 module.exports = sensorRouter;

@@ -18,6 +18,23 @@ module.exports = {
     });
   },
 
+  deleteById: async (req, res) => {
+    const { external_id } = req.params;
+
+    const results = await Sensor.deleteOne({ external_id });
+
+    if (!results?.deletedCount) {
+      return res.status(404).json({
+        msg: "No se encontro el sensor especificado",
+      });
+    }
+
+    return res.status(200).json({
+      msg: "OK",
+      results,
+    });
+  },
+
   list: async (req, res) => {
     try {
       const { page = 1, limit = 10, ...where } = req.query;
