@@ -8,21 +8,21 @@ const bcrypt = require("bcrypt");
 const transporter = require("../config/emailConfig");
 
 module.exports = {
-  loginUser: async (req, res) => {
+  loginUser: async (req, res, next) => {
     const { email, password } = req.body;
     // const account = await authService.login(email, password);
     let account = await Account.findOne({ email });
 
     if (!account) {
-      return res.json({ status: 400, msg: "La cuenta no fue encontrada" });
+      return next({ status: 404, msg: "La cuenta no fue encontrada" });
     }
 
     if (account.state == "BLOQUEADA") {
-      return res.json({ status: 401, msg: "Cuenta bloqueada" });
+      return next({ status: 401, msg: "Cuenta bloqueada" });
     }
 
     if (account.state == "INACTIVA") {
-      return res.json({ status: 401, msg: "Cuenta inactivada" });
+      return next({ status: 401, msg: "Cuenta inactivada" });
     }
 
     const datos = {
@@ -30,12 +30,14 @@ module.exports = {
       name: account.name,
       lastname: account.lastname,
       avatar: account.avatar,
+      state: account.state,
+      email: account.email,
     };
 
     const compare = bcrypt.compareSync(password, account.password);
 
     if (!compare) {
-      return res.json({ status: 401, msg: "Credenciales incorrectas" });
+      return next({ status: 401, msg: "Credenciales incorrectas" });
     }
 
     const payload = { id: account.id };
@@ -50,7 +52,7 @@ module.exports = {
     const account = await Account.findOne({ email });
 
     if (!account) {
-      return res.json({ status: 400, msg: "La cuenta no fue encontrada" });
+      return next({ status: 400, msg: "La cuenta no fue encontrada" });
     }
 
     account.state = "ACTIVA";
@@ -100,11 +102,11 @@ module.exports = {
     const account = await Account.findOne({ token });
 
     if (!account) {
-      return res.json({ status: 400, msg: "Token invalido" });
+      return next({ status: 400, msg: "Token invalido" });
     }
 
     if (Date.now() > account.tokenExpiresAt) {
-      return res.json({ status: 401, msg: "Token a expirado" });
+      return next({ status: 401, msg: "Token a expirado" });
     }
 
     account.password = await hashPassword(password);

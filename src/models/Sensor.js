@@ -7,6 +7,7 @@ const sensorSchema = new Schema({
     type: String,
     required: true,
     maxLength: 50,
+    unique: true,
   },
   unitMeasurement: {
     type: String,

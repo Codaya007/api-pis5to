@@ -19,7 +19,7 @@ module.exports = {
     const results = await Cuenta.findOne({ external_id });
 
     if (!results) {
-      return res.json({ status: 400, msg: "La cuenta no fue encontrada" });
+      return next({ status: 400, msg: "La cuenta no fue encontrada" });
     }
 
     return res.status(200).json({ msg: "OK", results });
@@ -30,7 +30,7 @@ module.exports = {
     let cuenta = await Cuenta.findOne({ external_id });
 
     if (!cuenta) {
-      return res.json({ status: 400, msg: "La cuenta no fue encontrada" });
+      return next({ status: 400, msg: "La cuenta no fue encontrada" });
     }
 
     if (req.body.password) {
@@ -46,13 +46,13 @@ module.exports = {
     return res.status(200).json({ msg: "OK", results: cuenta });
   },
 
-  createCuenta: async (req, res) => {
+  createCuenta: async (req, res, next) => {
     const cuentaExist = await Cuenta.findOne({ email: req.body.email });
     const hashedPassword = await hashPassword(req.body.password);
     req.body.password = hashedPassword;
 
     if (cuentaExist) {
-      return res.json({ status: 400, msg: "La cuenta ya existe" });
+      return next({ status: 400, msg: "La cuenta ya existe" });
     }
 
     const cuenta = await Cuenta.create({
@@ -62,12 +62,12 @@ module.exports = {
     return res.status(201).json({ msg: "OK", results: cuenta });
   },
 
-  deleteCuenta: async (req, res) => {
+  deleteCuenta: async (req, res, next) => {
     const external_id = req.params.external;
     let cuenta = await Cuenta.findOne({ external_id });
 
     if (!cuenta) {
-      return res.json({ status: 400, msg: "La cuenta no existe" });
+      return next({ status: 400, msg: "La cuenta no existe" });
     }
 
     const deletedCuenta = await Cuenta.findOneAndUpdate(

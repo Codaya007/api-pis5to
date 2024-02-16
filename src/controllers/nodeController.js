@@ -21,6 +21,23 @@ module.exports = {
     });
   },
 
+  deleteNodeById: async (req, res) => {
+    const { external_id } = req.params;
+
+    const results = await Node.deleteOne({ external_id });
+
+    if (!results?.deletedCount) {
+      return res.status(404).json({
+        msg: "No se encontro el nodo especificado",
+      });
+    }
+
+    return res.status(200).json({
+      msg: "OK",
+      results,
+    });
+  },
+
   list: async (req, res) => {
     try {
       const { page = 1, limit = 10, ...where } = req.query;
@@ -45,7 +62,7 @@ module.exports = {
 
   createNode: async (req, res) => {
     try {
-      const { tag, detail, ip, rol, sensor } = req.body;
+      const { tag, detail, ip, rol, sensor, estado } = req.body;
       const createdBy = req.me?.id;
 
       const data = {
@@ -55,6 +72,7 @@ module.exports = {
         rol: rol,
         sensor: sensor,
         createdBy: createdBy,
+        estado,
       };
 
       if (
@@ -86,19 +104,19 @@ module.exports = {
         });
       }
 
-      const accountResult = await Account.findOne({ external_id: createdBy });
+      // const accountResult = await Account.findOne({ external_id: createdBy });
 
-      if (!accountResult) {
-        return res.status(404).json({
-          msg: "El registro especificado (createdBy) no existe",
-        });
-      }
+      // if (!accountResult) {
+      //   return res.status(404).json({
+      //     msg: "El registro especificado (createdBy) no existe",
+      //   });
+      // }
 
       const results = await Node.create(data);
 
       await rolResult.refreshExternal();
       await sensorResult.refreshExternal();
-      await accountResult.refreshExternal();
+      // await accountResult.refreshExternal();
 
       //   console.log({ results });
 
@@ -117,7 +135,7 @@ module.exports = {
   updateNode: async (req, res) => {
     try {
       const { external_id } = req.params;
-      const { tag, detail, ip, rol, sensor } = req.body;
+      const { tag, detail, ip, rol, sensor, estado } = req.body;
 
       const nodeResult = await Node.findOne({ external_id: external_id });
 
@@ -134,6 +152,7 @@ module.exports = {
         ip: ip,
         rol: rol,
         sensor: sensor,
+        estado,
       };
 
       if (rol) {

@@ -5,6 +5,8 @@ module.exports = async (req, res, next) => {
     //! NO CAMBIAR ESTE NOMBRE DEL HEADER: https://developer.mozilla.org/es/docs/Web/HTTP/Headers/Authorization
     const bearerToken = req.header("Authorization");
 
+    console.log({ bearerToken });
+
     const user = await tokenValidation(bearerToken);
 
     if (user.deletedAt) {

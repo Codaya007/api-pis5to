@@ -30,6 +30,12 @@ nodeRouter.post(
 nodeRouter.get("/:external_id", isLoggedIn, nodeController.getNodeById);
 
 /**
+ * @route DELETE /
+ * @desc Eliminar nodo por ID
+ */
+nodeRouter.delete("/:external_id", isLoggedIn, nodeController.deleteNodeById);
+
+/**
  * @route PUT /
  * @desc Actualiza un nodo
  */
