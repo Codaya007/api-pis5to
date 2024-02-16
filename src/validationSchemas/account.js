@@ -1,5 +1,4 @@
 const Joi = require("joi");
-const { isValidObjectId } = require("mongoose");
 
 const createAccountSchema = Joi.object({
   name: Joi.string().required().min(3).max(25).messages({
@@ -11,11 +10,16 @@ const createAccountSchema = Joi.object({
   email: Joi.string().required().min(5).max(30).messages({
     "*": "El campo email es requerido y debe tener entre 5 y 30 caracteres",
   }),
-  avatar: Joi.string().optional().messages({
-    "*": "El campo avatar es invalido",
-  }),
-  password: Joi.string().required().min(5).max(30).messages({
-    "*": "El campo contraseña es requerido y debe tener entre 5 y 30 caracteres",
+  avatar: Joi.string()
+    .pattern(/\.(jpg|png|jpeg)$/)
+    .optional()
+    .messages({
+      "string.pattern.base":
+        "El campo avatar debe tener una extensión válida (.jpg, .png, .jpeg)",
+      "*": "El campo avatar es inválido",
+    }),
+  password: Joi.string().required().min(8).messages({
+    "*": "El campo contraseña es requerido de tener un minimo de 8 caracteres",
   }),
   state: Joi.string()
     .valid("ACTIVA", "BLOQUEADA", "INACTIVA")
@@ -23,11 +27,20 @@ const createAccountSchema = Joi.object({
     .messages({
       "*": "El campo estado es requerido y debe ser uno de: 'ACTIVA', 'BLOQUEADA', 'INACTIVA'",
     }),
+}).options({ abortEarly: false });
+
+const changePasswordSchema = Joi.object({
+  token: Joi.string().required().messages({
+    "*": "El token es requerido",
+  }),
+  password: Joi.string().required().min(8).messages({
+    "*": "El campo contraseña es requerido de tener un minimo de 8 caracteres",
+  }),
 });
 
 const editAccountSchema = Joi.object({
-  id: Joi.string().optional().custom(isValidObjectId).messages({
-    "*": "Id no válido",
+  external: Joi.string().required().messages({
+    "*": "El id es requerido",
   }),
   name: Joi.string().optional().min(3).max(25).messages({
     "*": "El campo nombre es requerido y debe tener entre 3 y 25 caracteres",
@@ -38,11 +51,14 @@ const editAccountSchema = Joi.object({
   email: Joi.string().email().optional().messages({
     "*": "El campo email debe ser un email válido",
   }),
-  avatar: Joi.string().optional().messages({
-    "*": "El campo avatar es invalido",
-  }),
-  password: Joi.string().optional().min(8).alphanum().max(30).messages({
-    "*": "El campo contraseña es requerido y debe tener entre 8 y 30 caracteres alfanuméricos",
+  avatar: Joi.string()
+    .pattern(/\.(jpg|png|jpeg)$/)
+    .optional()
+    .messages({
+      "*": "El campo avatar debe tener una extensión (.jpg, .png, .jpeg)",
+    }),
+  password: Joi.string().optional().min(8).messages({
+    "*": "El campo contraseña es requerido de tener un minimo de 8 caracteres",
   }),
   state: Joi.string()
     .valid("ACTIVA", "BLOQUEADA", "INACTIVA")
@@ -52,4 +68,8 @@ const editAccountSchema = Joi.object({
     }),
 });
 
-module.exports = { createAccountSchema, editAccountSchema };
+module.exports = {
+  createAccountSchema,
+  editAccountSchema,
+  changePasswordSchema,
+};

@@ -1,3 +1,4 @@
+const { FORMAT_BOOLEAN } = require("../constants");
 const WeatherData = require("../models/WeatherData");
 const moment = require("moment-timezone");
 
@@ -9,7 +10,15 @@ const moment = require("moment-timezone");
 class WeatherDataController {
   async list(req, res) {
     try {
-      const { page = 1, limit = 10, since, until, ...where } = req.query;
+      const {
+        page = 1,
+        limit = 10,
+        since,
+        until,
+        populate = false,
+        ...where
+      } = req.query;
+      const formatedPopulate = FORMAT_BOOLEAN[populate];
 
       where.deletedAt = null;
 
@@ -56,19 +65,26 @@ class WeatherDataController {
 
       where.dateTime = dateTime;
 
-      console.log({ where });
+      // console.log({ where });
 
       const totalCount = await WeatherData.countDocuments(where);
-      const data = await WeatherData.find(where)
-        .skip((parseInt(page) - 1) * limit)
-        .limit(limit)
-        .sort("dateTime DESC")
-        .exec();
+      const results = formatedPopulate
+        ? await WeatherData.find(where)
+            .skip((parseInt(page) - 1) * limit)
+            .limit(limit)
+            .populate("state", ["weatherType", "image", "description"])
+            .sort("dateTime DESC")
+            .exec()
+        : await WeatherData.find(where)
+            .skip((parseInt(page) - 1) * limit)
+            .limit(limit)
+            .sort("dateTime DESC")
+            .exec();
 
       res.status(200).json({
         msg: "OK",
         totalCount,
-        data,
+        results,
       });
     } catch (error) {
       console.error(error);
@@ -79,21 +95,21 @@ class WeatherDataController {
   async getById(req, res) {
     const { external_id } = req.params;
 
-    const data = await WeatherData.findOne({
+    const results = await WeatherData.findOne({
       external_id,
     });
 
-    if (!data) {
+    if (!results) {
       return res.status(404).json({
         msg: "El registro especificado no existe",
       });
     }
 
-    // await data.refreshExternal();
+    // await results.refreshExternal();
 
     res.status(200).json({
       msg: "OK",
-      data,
+      results,
     });
   }
 
@@ -101,56 +117,60 @@ class WeatherDataController {
     const { windSpeed, temperature, humidity, barometricPressure } = req.body;
 
     try {
-      if (
-        // windSpeed === undefined ||
-        temperature === undefined ||
-        barometricPressure === undefined ||
-        humidity === undefined
-      ) {
-        return res.status(400).json({
-          msg: "Los campos windSpeed, temperature y humidity son requeridos",
-        });
-      }
+      // if (
+      //   // windSpeed === undefined ||
+      //   temperature === undefined ||
+      //   barometricPressure === undefined ||
+      //   humidity === undefined
+      // ) {
+      //   return res.status(400).json({
+      //     msg: "Los campos windSpeed, temperature y humidity son requeridos",
+      //   });
+      // }
 
-      // Valido los valores enviado individualmente
-      if (windSpeed && (windSpeed < 0 || windSpeed > 200)) {
-        return res.status(400).json({
-          msg: `El valor del viendo debe ir entre 0 y 200 pero se ha enviado ${windSpeed}`,
-        });
-      }
+      // // Valido los valores enviado individualmente
+      // if (windSpeed && (windSpeed < 0 || windSpeed > 200)) {
+      //   return res.status(400).json({
+      //     msg: `El valor del viendo debe ir entre 0 y 200 pero se ha enviado ${windSpeed}`,
+      //   });
+      // }
 
-      if (temperature < -100 || temperature > 100) {
-        return res.status(400).json({
-          msg: `El valor de la temperatura debe ir entre -100 y 100 pero se ha enviado ${temperature}`,
-        });
-      }
+      // if (temperature < -100 || temperature > 100) {
+      //   return res.status(400).json({
+      //     msg: `El valor de la temperatura debe ir entre -100 y 100 pero se ha enviado ${temperature}`,
+      //   });
+      // }
 
-      if (humidity < 0 || humidity > 200) {
-        return res.status(400).json({
-          msg: `El valor de la humedad debe ir entre 0 y 200 pero se ha enviado ${humidity}`,
-        });
-      }
+      // if (humidity < 0 || humidity > 200) {
+      //   return res.status(400).json({
+      //     msg: `El valor de la humedad debe ir entre 0 y 200 pero se ha enviado ${humidity}`,
+      //   });
+      // }
 
-      if (barometricPressure < 0 || barometricPressure > 2000) {
-        return res.status(400).json({
-          msg: `El valor de la presión atmosférica debe ir entre 0 y 2000 pero se ha enviado ${barometricPressure}`,
-        });
-      }
+      // if (barometricPressure < 0 || barometricPressure > 2000) {
+      //   return res.status(400).json({
+      //     msg: `El valor de la presión atmosférica debe ir entre 0 y 2000 pero se ha enviado ${barometricPressure}`,
+      //   });
+      // }
 
       moment.tz.setDefault("America/Bogota");
       const dateTime = moment().toDate();
 
-      const data = await WeatherData.create({
+      // TODO: Actualizar determinación de estado climático
+      const pronostic = await WeatherData.findOne({});
+
+      const results = await WeatherData.create({
         dateTime,
         windSpeed,
         humidity,
         temperature,
         barometricPressure,
+        state: pronostic.id,
       });
 
       res.status(201).json({
         msg: "OK",
-        data,
+        results,
       });
     } catch (error) {
       res.json({

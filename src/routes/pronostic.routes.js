@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const isLoggedIn = require("../policies/isLoggedIn"); 
+const isLoggedIn = require("../policies/isLoggedIn");
 const pronosticController = require("../controllers/pronosticController");
 
 const pronosticRouter = Router();
@@ -8,20 +8,13 @@ const pronosticRouter = Router();
  * @route GET /
  * @desc Obtener pronostico por ID
  */
-pronosticRouter.get(
-  "/get/:external_id",
-  pronosticController.getPronosticById
-);
+pronosticRouter.get("/:external_id", pronosticController.getPronosticById);
 
 /**
  * @route GET /
  * @desc Obtener todos los pronósticos
  */
-pronosticRouter.get(
-  "/list",
-  pronosticController.list
-);
-
+pronosticRouter.get("/", pronosticController.list);
 
 /**
  * @route GET /
@@ -47,9 +40,10 @@ pronosticRouter.get(
  * @route POST /
  * @desc Crea un pronóstico
  */
-pronosticRouter.post(
-  "/create/:initDate/:endDate",
-  pronosticController.createPronostic
-);
+pronosticRouter.post("/", pronosticController.createPronostic);
+// pronosticRouter.post(
+//   "/create",
+//   pronosticController.createPronostic
+// );
 
 module.exports = pronosticRouter;

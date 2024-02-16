@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const manageExternalId = require("../plugins/manageExternalId");
-const softDeletePlugin = require("../plugins/softDelete");
+// const softDeletePlugin = require("../plugins/softDelete");
 
 const accountSchema = new Schema(
   {
@@ -26,7 +26,7 @@ const accountSchema = new Schema(
     password: {
       type: String,
       required: true,
-      min: 5,
+      min: 8,
       max: 61,
     },
     avatar: {
@@ -39,6 +39,10 @@ const accountSchema = new Schema(
       maxLength: 30,
       isIn: ["ACTIVA", "BLOQUEADA", "INACTIVA"],
       default: "ACTIVA",
+    },
+    deletedAt: {
+      type: Date,
+      required: false,
     },
     token: {
       type: String,
@@ -55,6 +59,8 @@ const accountSchema = new Schema(
 );
 
 accountSchema.plugin(manageExternalId);
+// accountSchema.plugin(softDeletePlugin);
+
 const Account = mongoose.model("accounts", accountSchema);
 
 module.exports = Account;
