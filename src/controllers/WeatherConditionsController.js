@@ -6,8 +6,6 @@ const { v4: uuidv4 } = require('uuid');
 
 
 class WeatherConditionsController {
-<<<<<<< Updated upstream
-=======
 
     async determineWeatherState(req, res) {
         try {
@@ -73,7 +71,6 @@ class WeatherConditionsController {
       
       
 
->>>>>>> Stashed changes
     async save(req, res) {
         try {
             let errors = validationResult(req);
@@ -145,7 +142,6 @@ class WeatherConditionsController {
         }
     }
 
-<<<<<<< Updated upstream
     async modify(req, res) {
         try {
             const externalId = req.params.external_id;
@@ -188,8 +184,6 @@ class WeatherConditionsController {
         }
     }
 
-=======
->>>>>>> Stashed changes
 }
 
 module.exports = WeatherConditionsController;
