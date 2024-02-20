@@ -8,6 +8,8 @@ const routes = require("./src/routes");
 const { errorHandler } = require("./src/middlewares");
 const notFound = require("./src/middlewares/notFound");
 
+const { job } = require("./src/services/scheduler"); // ? Schedule. No borrar
+
 const app = express();
 app.use(cors());
 
