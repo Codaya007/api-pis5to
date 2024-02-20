@@ -11,6 +11,12 @@ const weatherDataRouter = express.Router();
 weatherDataRouter.get("/", isLoggedIn, weatherDataController.list);
 
 weatherDataRouter.get(
+  "/statics",
+  isLoggedIn,
+  weatherDataController.getHourlyStatistics
+);
+
+weatherDataRouter.get(
   "/:external_id",
   isLoggedIn,
   weatherDataController.getById
