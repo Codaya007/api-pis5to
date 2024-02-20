@@ -71,31 +71,8 @@ module.exports = {
     createPronostic: async (req, res) => {
         try {
 
-            // TODO descomentar mas tarde cuando todo este listo
-            let response = await axios.get('http://127.0.0.1:5000/pronostico');
+            let response = await axios.get('https://model-pronostic.onrender.com/pronostico');
             response = response.data
-
-            // const response = {
-            //     "barometricPressure": {
-            //       "2024-02-10T08:19": 1055.5534759018237,
-            //       "2024-02-10T09:19": 1055.578407417746,
-            //       "2024-02-10T10:19": 1055.608316137896,
-            //       "2024-02-10T11:19": 1055.6351727415365
-            //     },
-            //     "humidity": {
-            //       "2024-02-10T08:19": 18.212445967978613,
-            //       "2024-02-10T09:19": 18.21101177660765,
-            //       "2024-02-10T10:19": 18.211000190979505,
-            //       "2024-02-10T11:19": 18.211027849408538
-            //     },
-            //     "temperature": {
-            //       "2024-02-10T08:19": 74.79762054702636,
-            //       "2024-02-10T09:19": 74.63749691974127,
-            //       "2024-02-10T10:19": 74.47417217595813,
-            //       "2024-02-10T11:19": 74.49829894392397
-            //     }
-            //   }
-
 
             formatedPronostics = []
             // Recorremos segun el length de la data interna de cada campo
@@ -105,15 +82,17 @@ module.exports = {
                 // Recorremos cada campo
                 for (let field in response) {
                     temp = Object.keys(response[field])
-                    console.log({ field });
-                    console.log({ temp });
+                    // console.log({ field });
+                    // console.log({ temp });
                     if (pronostico['dateTime'] == null) {
                         pronostico['dateTime'] = temp[i]
                     }
                     pronostico[field] = response[field][temp[i]]
                 }
-                // todo: funcion para saber en que condicion climatica estamos
-                pronostico['pronostic'] = '65ca89d086b1b420d1c7d385'
+                                
+                const responseweather = await weatherConditionsServices.getWeatherConditionsByParameters(pronostico['temperature'], pronostico['humidity'], pronostico['barometricPressure']);                
+                pronostico['pronostic'] = responseweather.id;                
+
                 formatedPronostics.push(pronostico)
             }
 
@@ -122,6 +101,7 @@ module.exports = {
                 await Pronostic.create(formatedPronostics[i]);
             }
 
+            // console.log({ formatedPronostics });
             res.status(201).json({
                 msg: "Se crearon los pronosticos satisfactoriamente",
             });
@@ -239,8 +219,8 @@ module.exports = {
             const fechaInicio = moment(initDate);
             const fechaFin = moment(endDate).startOf('day').add(1, 'day');
 
-            console.log({fechaInicio});
-            console.log({fechaFin});
+            console.log({ fechaInicio });
+            console.log({ fechaFin });
 
             let response = await axios.get(`http://127.0.0.1:5000/pronostico/${fechaInicio}/${fechaFin}`);
             response = response.data

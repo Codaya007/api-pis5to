@@ -48,8 +48,8 @@ pronosticRouter.get(
  */
 pronosticRouter.post("/", pronosticController.createPronostic);
 // pronosticRouter.post(
-//   "/create",
-//   pronosticController.createPronostic
-// );
+  //   "/create",
+  //   pronosticController.createPronostic
+  // );
 
 module.exports = pronosticRouter;
