@@ -179,6 +179,79 @@ class WeatherDataController {
       });
     }
   }
+
+  // Controlador para obtener estadísticas agrupadas por hora
+  async getHourlyStatistics(req, res, next) {
+    try {
+      const { date } = req.query;
+
+      moment.tz.setDefault("America/Guayaquil");
+      const sinceDate = moment(date).startOf("day");
+      const untilDate = moment(date).endOf("day");
+      // console.log({ sinceDate, untilDate });
+
+      const hourlyStatistics = await WeatherData.aggregate([
+        {
+          $match: {
+            dateTime: { $gte: sinceDate.toDate(), $lte: untilDate.toDate() },
+          },
+        },
+        {
+          $addFields: {
+            hourOfDay: {
+              $hour: { date: "$dateTime", timezone: "America/Guayaquil" },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              date: {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: "$dateTime",
+                  timezone: "America/Guayaquil",
+                },
+              },
+              hour: "$hourOfDay",
+            },
+            windSpeed: { $avg: "$windSpeed" },
+            temperature: { $avg: "$temperature" },
+            humidity: { $avg: "$humidity" },
+            barometricPressure: { $avg: "$barometricPressure" },
+            count: { $sum: 1 }, // Contador para calcular el total de documentos en el grupo
+          },
+        },
+        {
+          $sort: {
+            "_id.date": 1,
+            "_id.hour": 1,
+          },
+        },
+      ]);
+
+      // Redondear los promedios a 2 decimales
+      hourlyStatistics.forEach((stat) => {
+        const hour = stat._id?.hour || 0;
+
+        stat.hour = hour;
+        stat.label = `${hour}:00 ${stat._id?.hour > 12 ? "pm" : "am"}`;
+        stat.windSpeed = stat.windSpeed.toFixed(2);
+        stat.temperature = stat.temperature.toFixed(2);
+        stat.humidity = stat.humidity.toFixed(2);
+        stat.barometricPressure = stat.barometricPressure.toFixed(2);
+      });
+
+      // Luego puedes enviar hourlyStatistics como respuesta
+      return res.json(hourlyStatistics);
+    } catch (error) {
+      console.error(error);
+
+      return res
+        .status(500)
+        .json({ msg: "Error al obtener estadísticas agrupadas por hora" });
+    }
+  }
 }
 
 module.exports = WeatherDataController;

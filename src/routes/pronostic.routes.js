@@ -4,6 +4,12 @@ const pronosticController = require("../controllers/pronosticController");
 
 const pronosticRouter = Router();
 
+pronosticRouter.get(
+  "/statics",
+  isLoggedIn,
+  pronosticController.getHourlyStatistics
+);
+
 /**
  * @route GET /
  * @desc Obtener pronostico por ID
