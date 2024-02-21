@@ -65,34 +65,49 @@ module.exports = {
   },
 
   generatePasswordRecoveryToken: async (req, res, next) => {
-    const { email } = req.body;
-    const account = await Account.findOne({ email });
+    try {
+      const { email } = req.body;
+      const account = await Account.findOne({ email });
 
-    if (!account) {
-      return res.json({ status: 400, msg: "Email incorrecto" });
+      if (!account) {
+        return res.json({ status: 400, msg: "Email incorrecto" });
+      }
+
+      const token = generateUrlFriendlyToken();
+      account.token = token;
+      account.tokenExpiresAt = new Date(Date.now() + 3 * 60 * 60 * 100);
+      await account.save();
+
+      const recoveryEmailMessage = `
+      <p>¡Hola!</p>
+      <p>Parece que has solicitado recuperar tu contraseña. Por favor, haz click en el siguiente botón para continuar con el proceso:</p>
+      <p><a href="${process.env.FRONT_BASEURL}/recovery-password/${token}"><button style="background-color: pink; color: white; padding: 10px; border: none; cursor: pointer;">Recuperar contraseña</button></a></p>
+      <p>O copia y pega este enlace en tu navegador:</p>
+      <p><a href="${process.env.FRONT_BASEURL}/recovery-password/${token}">${process.env.FRONT_BASEURL}/recovery-password/${token}</a></p>
+      <p style="font-size: 12px;">Si no has solicitado esto, puedes ignorar este mensaje.</p>
+      <p style="font-size: 12px;">Gracias,<br>El equipo de Soporte</p>
+  `;
+
+      // console.log(token);
+      const mailOptions = {
+        from: transporter.options.auth.user,
+        to: email,
+        subject: "Recuperacion de contraseña Eco-clima",
+        html: recoveryEmailMessage,
+      };
+
+      await transporter.sendMail(mailOptions);
+
+      return res.status(200).json({
+        msg: "El link de acceso se le envio a su email de registro",
+      });
+    } catch (error) {
+      console.log({ error });
+
+      return res
+        .status(500)
+        .json({ msg: "Algo salió mal", details: error.message });
     }
-
-    const token = generateUrlFriendlyToken();
-    account.token = token;
-    account.tokenExpiresAt = new Date(Date.now() + 3 * 60 * 60 * 100);
-    await account.save();
-
-    // console.log(token);
-    const mailOptions = {
-      form: transporter.options.auth.user,
-      to: email,
-      subject: "Recuperacion de contraseña",
-      html: `
-       <b>Haga click en el siguiente enlace o pégelo en su navegador web para la recuperación de contraseña</b>
-       <a href="http://localhost:3000/auth/recovery-password/${token}">http://localhost:3000/auth/recovery-password/${token}</a>
-      `,
-    };
-
-    await transporter.sendMail(mailOptions);
-
-    return res.status(200).json({
-      msg: "El link de acceso se le envio a su email de registro",
-    });
   },
 
   recoverPassword: async (req, res, next) => {
