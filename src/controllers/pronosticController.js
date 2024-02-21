@@ -18,6 +18,7 @@ module.exports = {
 
         const totalCount = await Pronostic.countDocuments(where);
         let results = await Pronostic.find(where)
+            .sort({ dateTime: -1 })
             .skip((parseInt(page) - 1) * limit)
             .limit(limit)
             .exec();
@@ -30,7 +31,7 @@ module.exports = {
             }));
         }
 
-        results.sort((a, b) => b.dateTime - a.dateTime);
+        // results.sort((a, b) => b.dateTime - a.dateTime);
 
         res.status(200);
         res.json({
@@ -89,9 +90,9 @@ module.exports = {
                     }
                     pronostico[field] = response[field][temp[i]]
                 }
-                                
-                const responseweather = await weatherConditionsServices.getWeatherConditionsByParameters(pronostico['temperature'], pronostico['humidity'], pronostico['barometricPressure']);                
-                pronostico['pronostic'] = responseweather.id;                
+
+                const responseweather = await weatherConditionsServices.getWeatherConditionsByParameters(pronostico['temperature'], pronostico['humidity'], pronostico['barometricPressure']);
+                pronostico['pronostic'] = responseweather.id;
 
                 formatedPronostics.push(pronostico)
             }
