@@ -73,12 +73,12 @@ class WeatherDataController {
             .skip((parseInt(page) - 1) * limit)
             .limit(limit)
             .populate("state", ["weatherType", "image", "description"])
-            .sort("dateTime DESC")
+            .sort({ createdAt: -1 })
             .exec()
         : await WeatherData.find(where)
             .skip((parseInt(page) - 1) * limit)
             .limit(limit)
-            .sort("dateTime DESC")
+            .sort({ createdAt: -1 })
             .exec();
 
       res.status(200).json({

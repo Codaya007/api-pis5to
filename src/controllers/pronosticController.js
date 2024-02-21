@@ -17,13 +17,15 @@ module.exports = {
     where.deletedAt = null;
 
     const totalCount = await Pronostic.countDocuments(where);
-    let results = await Pronostic.find(where)
+    const results = await Pronostic.find(where)
       .skip((parseInt(page) - 1) * limit)
       .limit(limit)
+      .sort({ createdAt: -1 })
       .exec();
 
     if (populate) {
-      results = await Promise.all(
+      // results =
+      await Promise.all(
         results.map(async (element) => {
           weatherConditionsResult = await WeatherConditions.findOne({
             _id: element.pronostic,
@@ -34,7 +36,7 @@ module.exports = {
       );
     }
 
-    results.sort((a, b) => b.dateTime - a.dateTime);
+    // results.sort((a, b) => b.dateTime - a.dateTime);
 
     res.status(200);
     res.json({
@@ -250,21 +252,21 @@ module.exports = {
       );
       response = response.data;
 
-      if (populate) {
-        pronosticos = await Promise.all(
-          pronosticos.map(async (element) => {
-            const weatherConditionsResult = await WeatherConditions.findOne({
-              _id: element.pronostic,
-            });
-            element.pronostic = weatherConditionsResult;
-            return element;
-          })
-        );
-      }
+      // if (populate) {
+      //   pronosticos = await Promise.all(
+      //     pronosticos.map(async (element) => {
+      //       const weatherConditionsResult = await WeatherConditions.findOne({
+      //         _id: element.pronostic,
+      //       });
+      //       element.pronostic = weatherConditionsResult;
+      //       return element;
+      //     })
+      //   );
+      // }
 
       res.status(201).json({
         msg: "OK",
-        results: pronosticos,
+        // results: pronosticos,
       });
     } catch (error) {
       res.status(400).json({
