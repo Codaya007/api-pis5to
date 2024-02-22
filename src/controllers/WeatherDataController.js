@@ -1,6 +1,9 @@
 const { FORMAT_BOOLEAN } = require("../constants");
 const WeatherData = require("../models/WeatherData");
 const moment = require("moment-timezone");
+const {
+  getWeatherConditionsByParameters,
+} = require("../services/weatherConditionsServices");
 
 // En esta colección solo se puede:
 // Listar (con paginación)
@@ -156,8 +159,11 @@ class WeatherDataController {
       moment.tz.setDefault("America/Bogota");
       const dateTime = moment().toDate();
 
-      // TODO: Actualizar determinación de estado climático
-      const pronostic = await WeatherData.findOne({});
+      const pronostic = await getWeatherConditionsByParameters(
+        temperature,
+        humidity,
+        barometricPressure
+      );
 
       const results = await WeatherData.create({
         dateTime,
