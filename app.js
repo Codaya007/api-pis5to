@@ -3,15 +3,18 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const cors = require("cors");
+const schedule = require("node-schedule");
 
 const routes = require("./src/routes");
 const { errorHandler } = require("./src/middlewares");
 const notFound = require("./src/middlewares/notFound");
-
-const { job } = require("./src/services/scheduler"); // ? Schedule. No borrar
+const job = require("./src/services/scheduler");
 
 const app = express();
 app.use(cors());
+
+// Iniciar el proceso del planificador después de importar el job
+schedule.scheduleJob("generatePronostics", job.rule, job.callback);
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
